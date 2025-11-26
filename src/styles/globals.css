@@ -1,0 +1,413 @@
+@import url('https://fonts.googleapis.com/css2?family=Brown+LL:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+
+  --font-family: 'Brown LL', system-ui, sans-serif;
+  --font-size: 16px;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --background: #ffffff;
+  --foreground: oklch(0.145 0 0);
+  --card: #ffffff;
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #db2777;
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.0058 264.53);
+  --secondary-foreground: #030213;
+  --muted: #ececf0;
+  --muted-foreground: #717182;
+  --accent: #e9ebef;
+  --accent-foreground: #030213;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: #868686;
+  --input: transparent;
+  --input-background: #f3f3f5;
+  --switch-background: #cbced4;
+  --gray-border: #868686;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+  --ring: #a5c9ff;
+  --focus-border: #3b82f6;
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: #030213;
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+  --ring: #8fb8ff;
+  --focus-border: #60a5fa;
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-family);
+    letter-spacing: -0.0125em;
+  }
+
+  /* Ensure all interactive elements show pointer cursor */
+  button,
+  a,
+  [role="button"],
+  [onclick],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  select,
+  [data-slot="select-trigger"],
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+
+  /* Disabled elements should show default cursor */
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  /* Focus border styling for inputs and buttons with gray borders */
+  input:focus,
+  textarea:focus,
+  select:focus,
+  button:focus-visible {
+    &:is([class*="border-gray"], [class*="border-[#868686]"]) {
+      border-color: var(--focus-border) !important;
+    }
+  }
+
+  /* Focus border for SelectTrigger components with gray borders */
+  [data-slot="select-trigger"]:focus-visible {
+    &:is([class*="border-gray"], [class*="border-[#868686]"]) {
+      border-color: var(--focus-border) !important;
+    }
+  }
+
+  /* Disabled primary/pink buttons should have gray border and background */
+  button:disabled {
+    &:is([class*="bg-pink"], [class*="bg-primary"]) {
+      background-color: #f3f3f5 !important;
+      border: 1px solid #e5e5e5 !important;
+      color: #9ca3af !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Safari and Chrome */
+  }
+
+  .grid-cols-21 {
+    grid-template-columns: repeat(21, minmax(0, 1fr));
+  }
+
+  .grid-cols-22 {
+    grid-template-columns: repeat(22, minmax(0, 1fr));
+  }
+
+  .skeleton-ripple {
+    background: linear-gradient(90deg,
+        #e0ebff 25%,
+        #c7ddff 50%,
+        #e0ebff 75%);
+    background-size: 400% 100%;
+    animation: ripple 1.5s ease-in-out infinite;
+  }
+
+  @keyframes ripple {
+    0% {
+      background-position: -400% 0;
+    }
+
+    100% {
+      background-position: 400% 0;
+    }
+  }
+
+  /* Custom toast alert styles matching Figma design */
+  .toast-alert-custom {
+    background-color: #f0f5e6;
+    border: 1px solid #c5dba7;
+    border-radius: 4px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 356px;
+  }
+
+  .toast-alert-success {
+    background-color: #f0f5e6;
+    border: 1px solid #c5dba7;
+  }
+
+  .toast-alert-title {
+    color: #1c1c1c;
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 400;
+    flex: 1;
+    font-family: 'Brown LL', sans-serif;
+  }
+
+  .toast-alert-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 1;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .toast-alert-close:hover {
+    opacity: 0.7;
+  }
+
+  /* Icon wrapper spacing */
+  [data-sonner-toast] [data-icon] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  /* Overlay scrollbar - macOS style (no layout space) */
+  .scrollbar-overlay {
+    overflow: auto;
+    scrollbar-width: none;
+    /* Firefox - always hidden (no true overlay support) */
+  }
+
+  /* Webkit browsers - true overlay scrollbar */
+  .scrollbar-overlay::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 10px;
+    transition: background-color 0.2s;
+  }
+
+  .scrollbar-overlay:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.35);
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Office hours closed pattern - diagonal stripes */
+  .office-closed {
+    background-image: repeating-linear-gradient(45deg,
+        transparent,
+        transparent 8px,
+        rgba(209, 213, 219, 0.3) 8px,
+        rgba(209, 213, 219, 0.3) 16px);
+    position: relative;
+  }
+
+  .office-closed::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(249, 250, 251, 0.6);
+    pointer-events: none;
+  }
+
+  /* Typing animation - bouncing dots */
+  .typing-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #6b7280;
+    border-radius: 50%;
+    animation: typing-bounce 1.4s infinite ease-in-out;
+  }
+
+  .typing-dot:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes typing-bounce {
+
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+    }
+
+    30% {
+      transform: translateY(-8px);
+    }
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    strong,
+    b {
+      font-weight: var(--font-weight-bold);
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}

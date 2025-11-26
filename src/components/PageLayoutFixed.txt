@@ -1,0 +1,77 @@
+// Fixed function to replace in PageLayout.tsx starting at line 927
+
+  const handleAiPromptSelect = (prompt: string) => {
+    // If there's an existing chat, start a brand new chat
+    if (aiAssistantMessages && aiAssistantMessages.length > 0 && onStartNewChat) {
+      onStartNewChat();
+    }
+    
+    // Open the AI assistant with the selected prompt pre-populated
+    handleOpenSidebar('ai-assistant');
+    
+    // Check if this is the "book a room for my team" prompt
+    // which should trigger the same flow as clicking it from the intro page
+    const isBookRoomPrompt = prompt.toLowerCase().includes('book a room for my team');
+    
+    // Check if this is a catering request
+    const isCateringPrompt = prompt.toLowerCase().includes('catering') || 
+                             prompt.toLowerCase().includes('add catering');
+    
+    // Send the message immediately
+    // We'll trigger this via a callback mechanism that the AiAssistantSidebar can listen to
+    if (onAiAssistantMessagesUpdate) {
+      // Use setTimeout to ensure sidebar is open and ready
+      setTimeout(() => {
+        const timestamp = Date.now();
+        
+        const userMessage = {
+          id: `user-${timestamp}`,
+          content: prompt,
+          sender: 'user' as const
+        };
+        
+        // For "Help me book a room for my team", use the specific response that auto-populates input
+        // For catering requests, use the ezCater agent response
+        // Otherwise, generate contextual AI response
+        const aiResponseContent = isBookRoomPrompt
+          ? "The more you tell me about your meeting the better a space I can find:\n\n• What type of meeting is it?\n• How many people will attend?\n• How long will it be?\n• Do you need any specific amenities such as a projector or whiteboard?\n• What time and date are you looking for?\n"
+          : isCateringPrompt
+          ? "Ok, I can help with that! First I need a little more information:\n* What is the address for the meeting?\n* What time will the meeting be?\n* How many people do you need to feed?\n* Do you have any dietary restrictions?\n* Do you have a specific cuisine in mind?"
+          : generateAiResponse(prompt, currentView);
+        
+        const aiMessage: Message = {
+          id: `ai-${timestamp + 1}`,
+          content: aiResponseContent,
+          sender: 'assistant' as const,
+          agentType: isCateringPrompt ? 'ezcater' : undefined
+        };
+        
+        // Add both user message and AI response
+        let newMessages = [...(aiAssistantMessages || []), userMessage, aiMessage];
+        
+        // For catering requests, add the Robin agent response with meeting list widget
+        if (isCateringPrompt) {
+          const robinMessage: Message = {
+            id: `ai-${timestamp + 2}`,
+            content: "If you click a meeting in the grid to the left I'll add some of this info for you. Or pick from the list below:",
+            sender: 'assistant' as const,
+            agentType: undefined,
+            showMeetingListWidget: true
+          };
+          newMessages = [...newMessages, robinMessage];
+        }
+        
+        onAiAssistantMessagesUpdate(newMessages);
+        
+        // For "Help me book a room for my team", auto-populate the input with example booking
+        // This happens after the AI response is added, similar to the intro page flow
+        if (isBookRoomPrompt) {
+          // Give extra time for the sidebar to fully render
+          setTimeout(() => {
+            // We can't directly set the input value from here, but the AiAssistantSidebar
+            // will detect this pattern and auto-populate - that logic is already there
+          }, 500);
+        }
+      }, 100);
+    }
+  };
