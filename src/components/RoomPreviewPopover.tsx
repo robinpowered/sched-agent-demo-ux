@@ -2,7 +2,7 @@ import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faDisplay, faDesktop, faWifi, faVolumeUp, faVideo, faChalkboard, faCircleCheck, faCircleXmark, faLock, faBan } from '@fortawesome/free-solid-svg-icons';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from './common/ImageWithFallback';
 
 interface Room {
   id: string;
@@ -43,7 +43,7 @@ const getRoomImage = (roomId: string): string => {
     'penthouse-conf': 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400',
     'think-tank': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400',
   };
-  
+
   // Return room-specific image or a default
   return roomImages[roomId] || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400';
 };
@@ -74,7 +74,7 @@ export const RoomPreviewPopover: React.FC<RoomPreviewPopoverProps> = ({ room, ch
           {children}
         </div>
       </PopoverTrigger>
-      <PopoverContent 
+      <PopoverContent
         className="w-80 p-3 border border-[#868686] shadow-lg"
         side="right"
         sideOffset={88}
@@ -102,14 +102,14 @@ export const RoomPreviewPopover: React.FC<RoomPreviewPopoverProps> = ({ room, ch
 
             {/* Status */}
             <div className="flex items-center gap-1.5 mb-2">
-              <FontAwesomeIcon 
-                icon={room.status === 'available' ? faCircleCheck : faCircleXmark} 
+              <FontAwesomeIcon
+                icon={room.status === 'available' ? faCircleCheck : faCircleXmark}
                 className={`w-3.5 h-3.5 ${room.status === 'available' ? 'text-[#72B433]' : 'text-[#E81C1C]'}`}
               />
               <span className="text-[rgba(0,0,0,0.65)]" style={{ fontSize: '13px', fontWeight: 400 }}>
-                {room.status === 'available' ? 'Available now' : 
-                 room.status === 'occupied' ? 'Currently occupied' : 
-                 'Currently offline'}
+                {room.status === 'available' ? 'Available now' :
+                  room.status === 'occupied' ? 'Currently occupied' :
+                    'Currently offline'}
               </span>
             </div>
 

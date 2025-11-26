@@ -5,7 +5,7 @@ import { Badge } from './ui/badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight, faUsers, faDesktop, faWifi, faVolumeUp, faCalendar, faClock, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import svgPaths from '../imports/svg-qkb7ffmkcm';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from './common/ImageWithFallback';
 
 // Import shared types
 import { Meeting, Room, MeetingRequirements, RoomSuggestion } from '../types';
@@ -46,15 +46,15 @@ const getRoomImage = (roomId: string): string => {
     'collaboration-hub': 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=400&h=250&fit=crop&crop=center',
     'innovation-lab': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop&crop=center'
   };
-  
+
   // Return the specific image for this room, or default if not found
   return roomImages[roomId] || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=250&fit=crop&crop=center';
 };
 
-export function RoomBookingSuggestions({ 
-  meetingRequirements, 
-  rooms, 
-  onSelectRoom, 
+export function RoomBookingSuggestions({
+  meetingRequirements,
+  rooms,
+  onSelectRoom,
   onHighlightRoom,
   onAiMeetingPreviewUpdate,
   onCancel,
@@ -74,50 +74,50 @@ export function RoomBookingSuggestions({
   useEffect(() => {
     const findRoomSuggestions = () => {
       const { attendees, startTime, duration, features } = meetingRequirements;
-      
+
       const availableRooms = rooms
         .filter(room => {
           // Must be available
           if (room.status !== 'available') return false;
-          
+
           // Good fit: capacity is within attendees to attendees + 3
           if (room.capacity < attendees || room.capacity > attendees + 3) {
             return false;
           }
-          
+
           // Must have all required features
           const requiredFeatures = features || [];
           if (requiredFeatures.length > 0) {
-            const hasAllFeatures = requiredFeatures.every(requiredFeature => 
-              room.features.some(roomFeature => 
+            const hasAllFeatures = requiredFeatures.every(requiredFeature =>
+              room.features.some(roomFeature =>
                 roomFeature.toLowerCase().includes(requiredFeature.toLowerCase()) ||
                 requiredFeature.toLowerCase().includes(roomFeature.toLowerCase())
               )
             );
             if (!hasAllFeatures) return false;
           }
-          
+
           // Must not have conflicts at the meeting time
           const meetingEnd = startTime + duration;
           const hasConflict = room.meetings.some(existingMeeting => {
             const existingStart = existingMeeting.startTime;
             const existingEnd = existingMeeting.startTime + existingMeeting.duration;
-            
+
             // Check for overlap
             return !(meetingEnd <= existingStart || startTime >= existingEnd);
           });
-          
+
           return !hasConflict;
         })
         .map(room => {
           // Calculate match score
           let score = 0;
-          
+
           // Capacity scoring - good fits are up to 3 extra seats
           // attendees <= capacity <= attendees + 3 is a good fit
           // capacity >= attendees + 4 is a poor fit (too big)
           const extraSeats = room.capacity - attendees;
-          
+
           if (extraSeats >= 0 && extraSeats <= 3) {
             // Good fit - prefer tighter fits within the good range
             score += 100 - (extraSeats * 5); // 100, 95, 90, 85 for 0-3 extra seats
@@ -125,28 +125,28 @@ export function RoomBookingSuggestions({
             // Poor fit - too many seats
             score += Math.max(0, 50 - extraSeats); // Decreasing score as it gets bigger
           }
-          
+
           // Feature matching
           const requiredFeatures = features || [];
-          const featureMatches = requiredFeatures.filter(feature => 
-            room.features.some(roomFeature => 
+          const featureMatches = requiredFeatures.filter(feature =>
+            room.features.some(roomFeature =>
               roomFeature.toLowerCase().includes(feature.toLowerCase()) ||
               feature.toLowerCase().includes(roomFeature.toLowerCase())
             )
           ).length;
-          
+
           score += featureMatches * 10;
-          
+
           // Bonus for having all required features
           if (requiredFeatures.length > 0 && featureMatches === requiredFeatures.length) {
             score += 20;
           }
-          
+
           // Floor preference (ground floor gets slight bonus for accessibility)
           if (room.floor === 1) {
             score += 5;
           }
-          
+
           return {
             roomId: room.id,
             roomName: room.name,
@@ -159,9 +159,9 @@ export function RoomBookingSuggestions({
         .sort((a, b) => b.score - a.score); // Sort by score descending - no limit!
 
       // Only reset currentIndex if suggestions array has actually changed
-      const haveSuggestionsChanged = availableRooms.length !== suggestions.length || 
+      const haveSuggestionsChanged = availableRooms.length !== suggestions.length ||
         availableRooms.some((room, index) => room.roomId !== suggestions[index]?.roomId);
-      
+
       setSuggestions(availableRooms);
       if (haveSuggestionsChanged) {
         setCurrentIndex(0);
@@ -175,7 +175,7 @@ export function RoomBookingSuggestions({
   useEffect(() => {
     if (suggestions.length > 0) {
       const currentSuggestion = suggestions[currentIndex];
-      
+
       // Update meeting preview to show where the meeting would be placed
       if (onAiMeetingPreviewUpdate && currentSuggestion) {
         onAiMeetingPreviewUpdate({
@@ -186,7 +186,7 @@ export function RoomBookingSuggestions({
         });
       }
     }
-    
+
     // Don't cleanup preview on unmount - parent will handle clearing when booking
     // return () => {
     //   if (onAiMeetingPreviewUpdate) {
@@ -262,7 +262,7 @@ export function RoomBookingSuggestions({
 
   // Count amenities - show main ones and count total
   const amenityIcons = ['Video Conf', 'Whiteboard', 'Projector', 'Phone'];
-  const displayAmenities = currentSuggestion.roomFeatures.filter(f => 
+  const displayAmenities = currentSuggestion.roomFeatures.filter(f =>
     amenityIcons.some(a => f.includes(a))
   ).slice(0, 3);
   const totalAmenities = currentSuggestion.roomFeatures.length;
@@ -270,7 +270,7 @@ export function RoomBookingSuggestions({
   return (
     <div className={`content-stretch flex flex-col items-start relative rounded-[8px] w-full ${className}`}>
       <div aria-hidden="true" className="absolute border border-[#d6d6d6] border-solid inset-0 pointer-events-none rounded-[8px]" />
-      
+
       {/* Form Header */}
       <div className="relative shrink-0 w-full">
         <div className="flex flex-row items-center size-full">
@@ -278,13 +278,13 @@ export function RoomBookingSuggestions({
             <div className="flex flex-col font-['Brown_LL',_sans-serif] h-[22px] justify-center leading-[0] not-italic overflow-ellipsis overflow-hidden relative shrink-0 text-[#1c1c1c] text-[14px] text-nowrap">
               <p className="[white-space-collapse:collapse] leading-[22px] overflow-ellipsis overflow-hidden font-medium">Book Space</p>
             </div>
-            
+
             {/* Navigation buttons */}
             <div className="flex items-center gap-[8px]">
               <p className="font-['Brown_LL',_sans-serif] leading-[20px] not-italic text-[#6c6c6c] text-[12px] text-nowrap whitespace-pre">
                 {currentIndex + 1}/{suggestions.length}
               </p>
-              
+
               <button
                 onClick={handlePrevious}
                 disabled={suggestions.length <= 1}
@@ -295,7 +295,7 @@ export function RoomBookingSuggestions({
                   <p className="font-['Brown_LL',_sans-serif] leading-[20px] not-italic relative shrink-0 text-[#1c1c1c] text-[12px] text-nowrap whitespace-pre font-medium">Previous</p>
                 </div>
               </button>
-              
+
               <button
                 onClick={handleNext}
                 disabled={suggestions.length <= 1}
@@ -317,7 +317,7 @@ export function RoomBookingSuggestions({
       <div className="relative shrink-0 w-full">
         <div className="size-full">
           <div className="box-border content-stretch flex flex-col gap-[10px] items-start p-[12px] relative w-full">
-            
+
             {/* Title Input */}
             <div className="bg-white h-[32px] relative rounded-[4px] shrink-0 w-full">
               <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
@@ -407,7 +407,7 @@ export function RoomBookingSuggestions({
                               Floor {currentSuggestion.floor}, Boston HQ
                             </p>
                           </div>
-                          
+
                           {/* Amenities */}
                           <div className="content-center flex flex-wrap gap-[4px] items-center relative shrink-0 w-full mt-1">
                             <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
@@ -464,7 +464,7 @@ export function RoomBookingSuggestions({
                         {/* Room Photo */}
                         <div className="flex flex-row items-center self-stretch">
                           <div className="h-full relative rounded-[4px] shrink-0 w-[64px]">
-                            <ImageWithFallback 
+                            <ImageWithFallback
                               src={getRoomImage(currentSuggestion.roomId)}
                               alt={currentSuggestion.roomName}
                               className="h-full w-full object-cover rounded-[4px]"
@@ -489,7 +489,7 @@ export function RoomBookingSuggestions({
         <div className="flex flex-row items-center size-full">
           <div className="box-border content-stretch flex gap-[8px] items-center px-[16px] py-[12px] relative w-full">
             {/* Add Details Button */}
-            <button 
+            <button
               onClick={handleAddDetails}
               className="basis-0 bg-white grow min-h-px min-w-px relative rounded-[4px] shrink-0 h-[28px] hover:bg-gray-50 transition-colors"
             >
@@ -506,7 +506,7 @@ export function RoomBookingSuggestions({
             </button>
 
             {/* Book Button */}
-            <button 
+            <button
               onClick={handleSelectRoom}
               className="basis-0 grow min-h-px min-w-px relative rounded-[4px] shrink-0 h-[28px] bg-gradient-to-r from-[#db2777] to-[#3b82f6] hover:from-[#db2777]/90 hover:to-[#3b82f6]/90 transition-colors"
             >

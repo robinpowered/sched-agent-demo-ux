@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
-import { GlobalTabs } from './GlobalTabs';
+import { GlobalTabs } from './common/GlobalTabs';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { EditMeetingForm } from './EditMeetingForm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
+import {
   faTimes,
   faArrowLeft,
   faCalendar,
@@ -45,9 +45,9 @@ interface MeetingDetailsSidebarProps {
   demoTimeOverride?: number | null;
 }
 
-export function MeetingDetailsSidebar({ 
-  selectedMeeting, 
-  onClose, 
+export function MeetingDetailsSidebar({
+  selectedMeeting,
+  onClose,
   onBack,
   showBackButton = false,
   showCloseButton = true,
@@ -87,10 +87,10 @@ export function MeetingDetailsSidebar({
   const generateAttendees = (meeting: Meeting): Attendee[] => {
     const firstNames = ['Sarah', 'Michael', 'Emily', 'David', 'Jessica', 'Alex', 'Lisa', 'Chris', 'Amanda', 'Ryan', 'Jennifer', 'Daniel'];
     const lastNames = ['Johnson', 'Smith', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Garcia', 'Anderson', 'Taylor', 'Thomas', 'Moore'];
-    
+
     const attendees: Attendee[] = [];
     const attendeeCount = meeting.attendees;
-    
+
     // Always include the organizer as the first attendee
     const organizerName = meeting.organizer;
     attendees.push({
@@ -98,19 +98,19 @@ export function MeetingDetailsSidebar({
       name: organizerName,
       email: `${organizerName.toLowerCase().replace(' ', '.')}@wayne-enterprises.com`
     });
-    
+
     // Generate remaining attendees
     for (let i = 1; i < attendeeCount; i++) {
       const firstName = firstNames[i % firstNames.length];
       const lastName = lastNames[i % lastNames.length];
-      
+
       attendees.push({
         id: `attendee-${i}`,
         name: `${firstName} ${lastName}`,
         email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@wayne-enterprises.com`
       });
     }
-    
+
     return attendees;
   };
 
@@ -142,7 +142,7 @@ export function MeetingDetailsSidebar({
   // Generate meeting description based on meeting title
   const getMeetingDescription = (meeting: Meeting) => {
     const title = meeting.title.toLowerCase();
-    
+
     if (title.includes('standup') || title.includes('daily')) {
       return 'Daily team synchronization meeting to discuss progress, blockers, and upcoming tasks. Brief updates from each team member on yesterday\'s work and today\'s priorities.';
     } else if (title.includes('retrospective') || title.includes('retro')) {
@@ -186,25 +186,25 @@ export function MeetingDetailsSidebar({
           </Button>
         )}
       </div>
-      
+
       {/* Content with Tabs */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {isEditMode ? (
           <div className="flex-1 overflow-y-auto">
             <div className="p-[16px]">
-                <EditMeetingForm
-                  meeting={selectedMeeting.meeting}
-                  currentRoom={selectedMeeting.room}
-                  allRooms={allRooms}
-                  onSave={handleSaveEdit}
-                  onCancel={handleCancelEdit}
-                />
+              <EditMeetingForm
+                meeting={selectedMeeting.meeting}
+                currentRoom={selectedMeeting.room}
+                allRooms={allRooms}
+                onSave={handleSaveEdit}
+                onCancel={handleCancelEdit}
+              />
             </div>
           </div>
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="px-4 pt-4 flex-shrink-0">
-              <GlobalTabs 
+              <GlobalTabs
                 tabs={[
                   { value: 'details', label: 'Details' },
                   { value: 'attendees', label: `Attendees (${attendees.length})` }
@@ -213,10 +213,10 @@ export function MeetingDetailsSidebar({
                 onTabChange={setActiveTab}
               />
             </div>
-            
+
             {activeTab === 'details' && (
               <div className="flex-1 mt-0 overflow-y-auto">
-              <div className="p-4 space-y-6">
+                <div className="p-4 space-y-6">
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3">{selectedMeeting.meeting.title}</h4>
                     <p className="text-sm text-gray-600 mb-4 leading-relaxed">
@@ -253,7 +253,7 @@ export function MeetingDetailsSidebar({
                           onClick={() => onOpenRoomDetails?.(selectedMeeting.room)}
                           className="text-[#2774C1] hover:text-[#1e5a8a] hover:underline cursor-pointer text-left"
                         >
-                          {selectedMeeting.meeting.rooms && selectedMeeting.meeting.rooms.length > 1 
+                          {selectedMeeting.meeting.rooms && selectedMeeting.meeting.rooms.length > 1
                             ? `${selectedMeeting.room.name} +${selectedMeeting.meeting.rooms.length - 1} more`
                             : selectedMeeting.room.name}
                         </button>
@@ -299,13 +299,13 @@ export function MeetingDetailsSidebar({
                       ))}
                     </div>
                   </div>
-              </div>
+                </div>
               </div>
             )}
-            
+
             {activeTab === 'attendees' && (
               <div className="flex-1 mt-0 overflow-y-auto">
-              <div className="p-4">
+                <div className="p-4">
                   <div className="space-y-3">
                     {attendees.map((attendee, index) => (
                       <div key={attendee.id} className="flex items-center space-x-3">
@@ -333,7 +333,7 @@ export function MeetingDetailsSidebar({
                       </div>
                     ))}
                   </div>
-              </div>
+                </div>
               </div>
             )}
           </div>
@@ -351,8 +351,8 @@ export function MeetingDetailsSidebar({
             </div>
           )}
           <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="flex-1 flex items-center justify-center space-x-2"
               onClick={handleEditDetails}
               disabled={isPastMeeting}
@@ -360,11 +360,11 @@ export function MeetingDetailsSidebar({
               <FontAwesomeIcon icon={faPen} className="w-4 h-4 text-gray-500" />
               <span>Edit Details</span>
             </Button>
-            
+
             <Popover open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
               <PopoverTrigger asChild>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1 flex items-center justify-center space-x-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
                   disabled={isPastMeeting}
                 >
@@ -381,16 +381,16 @@ export function MeetingDetailsSidebar({
                     </p>
                   </div>
                   <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="flex-1"
                       onClick={() => setShowDeleteConfirm(false)}
                     >
                       Cancel
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       className="flex-1 bg-red-600 hover:bg-red-700"
                       onClick={handleDeleteMeeting}
                     >

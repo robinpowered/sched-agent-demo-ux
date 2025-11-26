@@ -12,14 +12,14 @@ import { Card, CardContent } from './ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from './ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from './common/ImageWithFallback';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faTimes, 
-  faPlus, 
-  faUsers, 
-  faCalendar, 
-  faClock, 
+import {
+  faTimes,
+  faPlus,
+  faUsers,
+  faCalendar,
+  faClock,
   faMapMarkerAlt,
   faCheck,
   faSort,
@@ -44,18 +44,18 @@ interface EditMeetingFormProps {
   fromAiSuggestion?: boolean;
   onMeetingPreviewUpdate?: (updatedFields: Partial<{
     startTime: number;
-    duration: number; 
+    duration: number;
     title: string;
     roomIds: string[];
   }>) => void;
   onFormValidityChange?: (isValid: boolean) => void;
 }
 
-export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingFormProps>(({ 
-  meeting, 
-  currentRoom, 
-  allRooms, 
-  onSave, 
+export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingFormProps>(({
+  meeting,
+  currentRoom,
+  allRooms,
+  onSave,
   onCancel,
   showActions = true,
   fromAiSuggestion = false,
@@ -65,9 +65,9 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
   // Generate meeting description using the same logic as the details view
   const getMeetingDescription = (meeting: Meeting) => {
     if (meeting.description) return meeting.description;
-    
+
     const title = meeting.title.toLowerCase();
-    
+
     if (title.includes('standup') || title.includes('daily')) {
       return 'Daily team synchronization meeting to discuss progress, blockers, and upcoming tasks. Brief updates from each team member on yesterday\'s work and today\'s priorities.';
     } else if (title.includes('retrospective') || title.includes('retro')) {
@@ -98,26 +98,26 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
     if (meeting.attendeeList && meeting.attendeeList.length > 0) {
       return meeting.attendeeList;
     }
-    
+
     // Generate attendee emails based on the meeting data
     const attendeeEmails: string[] = [];
     const attendeeCount = meeting.attendees;
-    
+
     // Always include the organizer as the first attendee
     const organizerEmail = `${meeting.organizer.toLowerCase().replace(' ', '.')}@wayne-enterprises.com`;
     attendeeEmails.push(organizerEmail);
-    
+
     // Generate remaining attendees using the same logic
     const firstNames = ['Sarah', 'Michael', 'Emily', 'David', 'Jessica', 'Alex', 'Lisa', 'Chris', 'Amanda', 'Ryan', 'Jennifer', 'Daniel'];
     const lastNames = ['Johnson', 'Smith', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Garcia', 'Anderson', 'Taylor', 'Thomas', 'Moore'];
-    
+
     for (let i = 1; i < attendeeCount; i++) {
       const firstName = firstNames[i % firstNames.length];
       const lastName = lastNames[i % lastNames.length];
-      
+
       attendeeEmails.push(`${firstName.toLowerCase()}.${lastName.toLowerCase()}@wayne-enterprises.com`);
     }
-    
+
     return attendeeEmails;
   };
 
@@ -163,14 +163,14 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
     const firstNames = ['Sarah', 'Michael', 'Emily', 'David', 'Jessica', 'Alex', 'Lisa', 'Chris', 'Amanda', 'Ryan', 'Jennifer', 'Daniel'];
     const lastNames = ['Johnson', 'Smith', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Garcia', 'Anderson', 'Taylor', 'Thomas', 'Moore'];
     const departments = ['Engineering', 'Product', 'Design', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations'];
-    
+
     const users = [];
-    
+
     for (let i = 0; i < firstNames.length; i++) {
       const firstName = firstNames[i];
       const lastName = lastNames[i % lastNames.length];
       const department = departments[i % departments.length];
-      
+
       users.push({
         id: `user-${i + 1}`,
         name: `${firstName} ${lastName}`,
@@ -178,14 +178,14 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
         department
       });
     }
-    
+
     return users;
   };
 
   const allUsers = generateAllUsers();
 
   // Filter available rooms (only those that appear in the meeting grid)
-  const availableRooms = allRooms.filter(room => 
+  const availableRooms = allRooms.filter(room =>
     room.meetings && room.meetings.length > 0
   );
 
@@ -233,7 +233,7 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
     if (onMeetingPreviewUpdate) {
       const duration = isAllDay ? 9 : endTime - startTime;
       const finalStartTime = isAllDay ? 8 : startTime;
-      
+
       onMeetingPreviewUpdate({
         title,
         startTime: finalStartTime,
@@ -245,10 +245,10 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const duration = isAllDay ? 9 : endTime - startTime; // 9 hours for all day (8 AM to 5 PM)
     const finalStartTime = isAllDay ? 8 : startTime;
-    
+
     const updatedMeeting: Meeting = {
       ...meeting,
       title,
@@ -279,14 +279,14 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
     // Check if room has conflicting meetings at the selected time
     const meetingStart = startTime;
     const meetingEnd = endTime;
-    
+
     return !room.meetings.some(existingMeeting => {
       // Skip the current meeting being edited
       if (existingMeeting.id === meeting.id) return false;
-      
+
       const existingStart = existingMeeting.startTime;
       const existingEnd = existingMeeting.startTime + existingMeeting.duration;
-      
+
       // Check for overlap
       return !(meetingEnd <= existingStart || meetingStart >= existingEnd);
     });
@@ -297,20 +297,20 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
   };
 
   // Get selected room objects
-  const selectedRoomObjects = selectedRooms.map(roomId => 
+  const selectedRoomObjects = selectedRooms.map(roomId =>
     availableRooms.find(room => room.id === roomId) || allRooms.find(room => room.id === roomId)
   ).filter(Boolean) as Room[];
 
   // Get available rooms for adding (excluding already selected ones)
-  const availableRoomsForAdd = availableRooms.filter(room => 
-    !selectedRooms.includes(room.id) && 
-    isRoomAvailable(room) && 
-    canAccommodateAttendees(room) && 
+  const availableRoomsForAdd = availableRooms.filter(room =>
+    !selectedRooms.includes(room.id) &&
+    isRoomAvailable(room) &&
+    canAccommodateAttendees(room) &&
     room.status !== 'offline'
   );
 
   // Get available users for adding (excluding already selected ones)
-  const availableUsersForAdd = allUsers.filter(user => 
+  const availableUsersForAdd = allUsers.filter(user =>
     !attendeeList.includes(user.email)
   );
 
@@ -500,9 +500,9 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
           {availableRoomsForAdd.length > 0 && (
             <Popover open={showAddRoom} onOpenChange={setShowAddRoom}>
               <PopoverTrigger asChild>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   className="w-full justify-center"
                 >
                   <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2 text-gray-500" />
@@ -569,12 +569,12 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
             {attendeeList.map((attendeeEmail, index) => {
               const user = allUsers.find(u => u.email === attendeeEmail);
               const isOrganizer = attendeeEmail === `${meeting.organizer.toLowerCase().replace(' ', '.')}@wayne-enterprises.com`;
-              
+
               // Generate name from email if user not found
-              const displayName = user ? user.name : 
+              const displayName = user ? user.name :
                 attendeeEmail.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
               const displayDepartment = user ? user.department : 'Unknown';
-              
+
               return (
                 <React.Fragment key={index}>
                   <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded">
@@ -610,7 +610,7 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
                       </Button>
                     )}
                   </div>
-                  
+
                   {/* AI Banner after organizer */}
                   {isOrganizer && fromAiSuggestion && attendeeList.length > 1 && (
                     <div className="relative rounded-lg p-3 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 border border-blue-100">
@@ -631,9 +631,9 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
           {availableUsersForAdd.length > 0 && (
             <Popover open={showAddAttendee} onOpenChange={setShowAddAttendee}>
               <PopoverTrigger asChild>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   className="w-full justify-center"
                 >
                   <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2 text-gray-500" />

@@ -4,14 +4,14 @@ import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { ScrollArea } from './ui/scroll-area';
 import { Switch } from './ui/switch';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { GlobalTabs } from './GlobalTabs';
+import { ImageWithFallback } from './common/ImageWithFallback';
+import { GlobalTabs } from './common/GlobalTabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faTimes, 
+import {
+  faTimes,
   faArrowLeft,
-  faUsers, 
-  faMapMarkerAlt, 
+  faUsers,
+  faMapMarkerAlt,
   faCalendar,
   faClock,
   faDesktop,
@@ -54,7 +54,7 @@ const getRoomImage = (roomId: string): string => {
     'collaboration-hub': 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=400&h=250&fit=crop&crop=center',
     'innovation-lab': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop&crop=center'
   };
-  
+
   // Return the specific image for this room, or default if not found
   return roomImages[roomId] || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=250&fit=crop&crop=center';
 };
@@ -81,7 +81,7 @@ export function RoomDetailsSidebar({
   onToggleRoomOffline
 }: RoomDetailsSidebarProps) {
   const [scheduleView, setScheduleView] = useState<'today' | 'week' | 'month'>('today');
-  
+
   // Time slots from 8 AM to 6 PM in 30-minute intervals
   const timeSlots = [
     8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5,
@@ -156,14 +156,14 @@ export function RoomDetailsSidebar({
   const getWeekDays = () => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
     const today = getCurrentDayOfWeek();
-    
+
     return days.map((day, index) => {
       // Distribute meetings across weekdays - each day gets different meetings
       const dayMeetings = room.meetings.filter((_, meetingIndex) => {
         // Distribute based on meeting index and day index
         return meetingIndex % 5 === index;
       });
-      
+
       return {
         label: day,
         isToday: today === index + 1, // Monday = 1, Friday = 5
@@ -179,12 +179,12 @@ export function RoomDetailsSidebar({
     const month = now.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDay = new Date(year, month, 1).getDay();
-    
+
     const days = [];
     for (let i = 1; i <= daysInMonth; i++) {
       const date = new Date(year, month, i);
       const dayOfWeek = date.getDay();
-      
+
       // Only show meetings on weekdays, varied distribution
       let dayMeetings: Meeting[] = [];
       if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday-Friday
@@ -194,11 +194,11 @@ export function RoomDetailsSidebar({
           const pattern1 = i % 3 === 0; // Every 3rd day
           const pattern2 = i % 5 === meetingIndex % 5; // Rotating meetings
           const pattern3 = (i + meetingIndex) % 7 === 0; // Another pattern
-          
+
           return pattern1 || pattern2 || pattern3;
         }).slice(0, 3); // Limit to 3 meetings per day max
       }
-      
+
       days.push({
         date: i,
         isToday: i === now.getDate(),
@@ -215,16 +215,15 @@ export function RoomDetailsSidebar({
   };
 
   // Calculate dynamic width based on schedule view
-  const sidebarWidth = scheduleView === 'today' 
-    ? '384px' 
+  const sidebarWidth = scheduleView === 'today'
+    ? '384px'
     : `calc(100vw - ${isNavCollapsed ? '92px' : '220px'})`; // nav width + 20px gap
 
   return (
-    <div 
-      className={`fixed top-0 right-0 h-full flex flex-col bg-white border-l border-[#D6D6D6] transition-all duration-300 z-50 ${
-        scheduleView !== 'today' ? 'shadow-2xl' : ''
-      }`}
-      style={{ 
+    <div
+      className={`fixed top-0 right-0 h-full flex flex-col bg-white border-l border-[#D6D6D6] transition-all duration-300 z-50 ${scheduleView !== 'today' ? 'shadow-2xl' : ''
+        }`}
+      style={{
         width: sidebarWidth
       }}
     >
@@ -255,17 +254,17 @@ export function RoomDetailsSidebar({
             <h2 className="text-xl font-semibold text-[rgba(0,0,0,0.95)] mb-3">
               {room.name}
             </h2>
-            
+
             {/* Status - moved here to be just below room name */}
             <div className="flex items-center gap-2">
-              <FontAwesomeIcon 
-                icon={room.status === 'available' ? faCircleCheck : faCircleXmark} 
+              <FontAwesomeIcon
+                icon={room.status === 'available' ? faCircleCheck : faCircleXmark}
                 className={`w-4 h-4 ${room.status === 'available' ? 'text-[#72B433]' : 'text-[#E81C1C]'}`}
               />
               <span className="text-sm text-[rgba(0,0,0,0.75)] capitalize">
                 {room.status === 'available' ? 'Available now' :
-                 room.status === 'occupied' ? 'Currently occupied' :
-                 'Currently offline'}
+                  room.status === 'occupied' ? 'Currently occupied' :
+                    'Currently offline'}
               </span>
             </div>
           </div>
@@ -342,7 +341,7 @@ export function RoomDetailsSidebar({
                     <FontAwesomeIcon icon={faPowerOff} className="w-4 h-4 text-[rgba(0,0,0,0.75)]" />
                     <span className="text-sm text-[rgba(0,0,0,0.75)]">Take room offline</span>
                   </div>
-                  <Switch 
+                  <Switch
                     checked={room.status === 'offline'}
                     onCheckedChange={(checked) => {
                       if (onToggleRoomOffline) {
@@ -425,7 +424,7 @@ export function RoomDetailsSidebar({
                         <FontAwesomeIcon icon={faPowerOff} className="w-4 h-4 text-[rgba(0,0,0,0.75)]" />
                         <span className="text-sm text-[rgba(0,0,0,0.75)]">Take room offline</span>
                       </div>
-                      <Switch 
+                      <Switch
                         checked={room.status === 'offline'}
                         onCheckedChange={(checked) => {
                           if (onToggleRoomOffline) {
@@ -482,11 +481,11 @@ export function RoomDetailsSidebar({
                 {timeSlots.map((timeSlot) => {
                   const meeting = getMeetingAtTime(timeSlot);
                   const isAvailable = !meeting;
-                  
+
                   if (meeting) {
                     // Show meeting block
                     const isStartOfMeeting = meeting.startTime === timeSlot;
-                    
+
                     if (!isStartOfMeeting) {
                       // Skip time slots that are part of a longer meeting (not the start)
                       return null;
@@ -543,13 +542,12 @@ export function RoomDetailsSidebar({
             {scheduleView === 'week' && (
               <div className="grid grid-cols-5 gap-4">
                 {getWeekDays().map((day, index) => (
-                  <div 
-                    key={index} 
-                    className={`rounded-lg overflow-hidden bg-white ${
-                      day.isToday 
-                        ? 'border-2 border-[#3b82f6] bg-[#f0f6ff]' 
-                        : 'border border-[#868686]'
-                    }`}
+                  <div
+                    key={index}
+                    className={`rounded-lg overflow-hidden bg-white ${day.isToday
+                      ? 'border-2 border-[#3b82f6] bg-[#f0f6ff]'
+                      : 'border border-[#868686]'
+                      }`}
                   >
                     <div className="p-2 border-b border-[#868686] text-center bg-gray-50">
                       <div style={{ fontSize: '12px', fontWeight: 500 }}>{day.label}</div>
@@ -597,24 +595,23 @@ export function RoomDetailsSidebar({
                   {(() => {
                     const { days, firstDay } = getMonthDays();
                     const cells = [];
-                    
+
                     // Add empty cells for days before month starts
                     for (let i = 0; i < firstDay; i++) {
                       cells.push(<div key={`empty-${i}`} className="min-h-[120px]" />);
                     }
-                    
+
                     // Add day cells with varied meetings
                     days.forEach((day) => {
                       const dayMeetings = day.meetings;
-                      
+
                       cells.push(
-                        <div 
-                          key={day.date} 
-                          className={`min-h-[120px] rounded p-1 bg-white ${
-                            day.isToday 
-                              ? 'border-2 border-[#3b82f6] bg-[#f0f6ff]' 
-                              : 'border border-[#868686]'
-                          }`}
+                        <div
+                          key={day.date}
+                          className={`min-h-[120px] rounded p-1 bg-white ${day.isToday
+                            ? 'border-2 border-[#3b82f6] bg-[#f0f6ff]'
+                            : 'border border-[#868686]'
+                            }`}
                         >
                           <div style={{ fontSize: '11px', fontWeight: day.isToday ? 500 : 400 }} className="text-center mb-1">
                             {day.date}
@@ -622,7 +619,7 @@ export function RoomDetailsSidebar({
                           {dayMeetings.length > 0 && (
                             <div className="space-y-0.5 max-h-[100px] overflow-y-auto scrollbar-overlay">
                               {dayMeetings.map((meeting, idx) => (
-                                <button 
+                                <button
                                   key={idx}
                                   className="w-full p-1 bg-[#2774C1] text-white rounded cursor-pointer hover:bg-[#1e5a8a] transition-colors text-left"
                                   onClick={() => onOpenMeetingDetails({ meeting, room })}
@@ -640,7 +637,7 @@ export function RoomDetailsSidebar({
                         </div>
                       );
                     });
-                    
+
                     return cells;
                   })()}
                 </div>
