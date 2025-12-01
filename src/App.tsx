@@ -306,13 +306,13 @@ export default function App() {
       setAiMeetingPreview(null);
       setHighlightedRoomId(null);
       setPreviewChatId(null);
-
-      // Show success toast
-      const roomName = allRooms.find(r => selectedRooms.includes(r.id))?.name || 'room';
-      toast.success(`Meeting "${meetingWithId.title}" booked successfully in ${roomName}!`, {
-        duration: 3000,
-      });
     }
+
+    // Show success toast for all new meetings
+    const roomName = allRooms.find(r => selectedRooms.includes(r.id))?.name || 'room';
+    toast.success(`Meeting "${meetingWithId.title}" booked successfully in ${roomName}!`, {
+      duration: 3000,
+    });
 
     // Clear the creation context
     setMeetingCreationContext(null);
