@@ -91,6 +91,9 @@ export default function App() {
     createNewChat,
   } = useChatStore();
 
+  // Ensure chatHistory is always an array
+  const normalizedChatHistory = Array.isArray(chatHistory) ? chatHistory : [];
+
   // Service Store
   const {
     serviceTickets,
@@ -561,26 +564,61 @@ export default function App() {
       };
 
       // Create AI confirmation message (with incremented timestamp to ensure uniqueness)
+      const aiMessageContent = `Perfect! I've booked ${roomName} (Floor ${floor}) for "${title}" at ${startTimeStr} for ${duration} hour${
+        duration > 1 ? "s" : ""
+      }. The room is confirmed and ready for your ${attendees} attendee${
+        attendees > 1 ? "s" : ""
+      }.`;
+
       const aiMessage: Message = {
         id: `ai-${timestamp + 1}`,
-        content: `Perfect! I've booked ${roomName} (Floor ${floor}) for "${title}" at ${startTimeStr} for ${duration} hour${
-          duration > 1 ? "s" : ""
-        }. The room is confirmed and ready for your ${attendees} attendee${
-          attendees > 1 ? "s" : ""
-        }.`,
+        content: aiMessageContent,
         sender: "assistant",
+        isTyping: true,
       };
 
-      // Update messages: hide room suggestions, add user request and AI confirmation
+      // Calculate typing animation duration: 2000ms (bouncing dots) + (content.length * 20ms) + 100ms (cleanup)
+      const typingDuration = 2000 + aiMessageContent.length * 20 + 100;
+
+      // Update messages: hide room suggestions, add only AI confirmation (with typing animation)
       setAiAssistantMessages((prevMessages) => {
         // Hide room suggestions in existing messages
         const messagesWithoutSuggestions = prevMessages.map((msg) =>
           msg.showRoomSuggestions ? { ...msg, showRoomSuggestions: false } : msg
         );
 
-        // Add user message and AI confirmation
-        return [...messagesWithoutSuggestions, userMessage, aiMessage];
+        // Add only AI message first (user message will be added after typing completes)
+        return [...messagesWithoutSuggestions, aiMessage];
       });
+
+      // Add user message after AI typing animation completes
+      setTimeout(() => {
+        setAiAssistantMessages((prevMessages) => {
+          // Find the AI message index and insert user message before it
+          const aiMessageIndex = prevMessages.findIndex(
+            (msg) => msg.id === aiMessage.id
+          );
+          if (aiMessageIndex === -1) {
+            // AI message not found, just add user message at the end
+            return [...prevMessages, userMessage];
+          }
+
+          // Mark AI message as no longer typing
+          const updatedMessages = prevMessages.map((msg) => {
+            if (msg.id === aiMessage.id) {
+              return { ...msg, isTyping: false };
+            }
+            return msg;
+          });
+
+          // Insert user message right before the AI message
+          return [
+            ...updatedMessages.slice(0, aiMessageIndex),
+            userMessage,
+            ...updatedMessages.slice(aiMessageIndex),
+          ];
+        });
+      }, typingDuration);
 
       // Generate meeting ID and create meeting object
       const meetingId = Date.now().toString();
@@ -971,27 +1009,32 @@ export default function App() {
   const saveCurrentChatToHistory = () => {
     if (aiAssistantMessages.length === 0) return;
 
-    const chatSession: ChatSession = {
-      id: currentChatId || Date.now().toString(),
-      title: generateChatTitle(aiAssistantMessages),
-      messages: [...aiAssistantMessages],
-      createdAt: currentChatId
-        ? chatHistory.find((c) => c.id === currentChatId)?.createdAt ||
-          new Date().toISOString()
-        : new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    const chatIdToSave = currentChatId || Date.now().toString();
 
     setChatHistory((prev) => {
-      const existingIndex = prev.findIndex((c) => c.id === chatSession.id);
+      // Ensure prev is always an array
+      const prevArray = Array.isArray(prev) ? prev : [];
+
+      // Find existing chat to preserve createdAt
+      const existingChat = prevArray.find((c) => c.id === chatIdToSave);
+
+      const chatSession: ChatSession = {
+        id: chatIdToSave,
+        title: generateChatTitle(aiAssistantMessages),
+        messages: [...aiAssistantMessages],
+        createdAt: existingChat?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const existingIndex = prevArray.findIndex((c) => c.id === chatSession.id);
       if (existingIndex >= 0) {
         // Update existing chat
-        const updated = [...prev];
+        const updated = [...prevArray];
         updated[existingIndex] = chatSession;
         return updated;
       } else {
         // Add new chat to the beginning
-        return [chatSession, ...prev];
+        return [chatSession, ...prevArray];
       }
     });
   };
@@ -1018,11 +1061,13 @@ export default function App() {
   };
 
   const startNewChat = () => {
-    if (aiAssistantMessages.length > 0) {
+    // Save current chat to history before clearing
+    if (aiAssistantMessages.length > 0 && currentChatId) {
       saveCurrentChatToHistory();
     }
+    // Clear messages and generate a new chat ID for the new chat session
     setAiAssistantMessages([]);
-    setCurrentChatId(null);
+    setCurrentChatId(Date.now().toString());
 
     // Clear preview when starting new chat
     setAiMeetingPreview(null);
@@ -1036,34 +1081,12 @@ export default function App() {
     // If this is the first message and we don't have a currentChatId yet, create one
     if (messages.length > 0 && !currentChatId) {
       setCurrentChatId(Date.now().toString());
-      return; // Don't auto-save on the first message, just assign ID
     }
 
-    // Auto-save to history when messages are updated (for real-time persistence)
-    if (messages.length > 0 && currentChatId) {
-      // Debounced save - only save if this is an existing chat
-      setTimeout(() => {
-        const chatSession: ChatSession = {
-          id: currentChatId,
-          title: generateChatTitle(messages),
-          messages: [...messages],
-          createdAt:
-            chatHistory.find((c) => c.id === currentChatId)?.createdAt ||
-            new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        setChatHistory((prev) => {
-          const existingIndex = prev.findIndex((c) => c.id === currentChatId);
-          if (existingIndex >= 0) {
-            const updated = [...prev];
-            updated[existingIndex] = chatSession;
-            return updated;
-          }
-          return prev;
-        });
-      }, 1000);
-    }
+    // Don't auto-save current active chat to history
+    // Chats are only saved to history when:
+    // 1. User starts a new chat (via startNewChat)
+    // 2. User loads a chat from history (which replaces the current chat)
   };
 
   // Handler for navigation
@@ -1197,7 +1220,7 @@ export default function App() {
               onNotificationPopoverClose={handleNotificationPopoverClose}
               aiAssistantMessages={aiAssistantMessages}
               onAiAssistantMessagesUpdate={handleAiAssistantMessagesUpdate}
-              chatHistory={chatHistory}
+              chatHistory={normalizedChatHistory}
               onLoadChatFromHistory={loadChatFromHistory}
               onStartNewChat={startNewChat}
               selectedMeetingDetails={selectedMeetingDetails}
