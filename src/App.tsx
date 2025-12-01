@@ -1,24 +1,54 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { PageLayout } from './components/PageLayout';
-import { MeetingSpacesPage } from './components/MeetingSpacesPage';
-import { Toaster } from './components/ui/sonner';
-import { toast } from 'sonner';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './components/ui/alert-dialog';
-import { CateringOrderDetails } from './components/CateringOrderPreview';
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import { PageLayout } from "./components/PageLayout";
+import { MeetingSpacesPage } from "./components/MeetingSpacesPage";
+import { Toaster } from "./components/ui/sonner";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./components/ui/alert-dialog";
+import { CateringOrderDetails } from "./components/CateringOrderPreview";
 
 // Import shared types
-import { View, SidebarType, Message, ChatSession, Meeting, Room, MeetingRoomFilters, ServiceTicket } from './types';
+import {
+  View,
+  SidebarType,
+  Message,
+  ChatSession,
+  Meeting,
+  Room,
+  MeetingRoomFilters,
+  ServiceTicket,
+} from "./types";
 
 // Import shared constants
-import { DEFAULT_TIME_WINDOW } from './constants';
+import { DEFAULT_TIME_WINDOW } from "./constants";
 
 // Import shared utilities
-import { getPageTitle, getFilteredRooms as filterRooms, getPreviousTimeWindow, getNextTimeWindow, formatTimeFloat } from './utils';
-import { useUiStore } from './stores/useUiStore';
-import { useMeetingStore } from './stores/useMeetingStore';
-import { useChatStore } from './stores/useChatStore';
-import { useServiceStore } from './stores/useServiceStore';
+import {
+  getPageTitle,
+  getFilteredRooms as filterRooms,
+  getPreviousTimeWindow,
+  getNextTimeWindow,
+  formatTimeFloat,
+} from "./utils";
+import { useUiStore } from "./stores/useUiStore";
+import { useMeetingStore } from "./stores/useMeetingStore";
+import { useChatStore } from "./stores/useChatStore";
+import { useServiceStore } from "./stores/useServiceStore";
 
 export default function App() {
   const navigate = useNavigate();
@@ -26,13 +56,15 @@ export default function App() {
 
   // UI Store
   const {
-    currentView, setCurrentView,
-    sidebarType: sidebarState, setSidebarType: setSidebarState // Alias to match existing usage
+    currentView,
+    setCurrentView,
+    sidebarType: sidebarState,
+    setSidebarType: setSidebarState, // Alias to match existing usage
   } = useUiStore();
 
   // Sync URL with currentView state
   useEffect(() => {
-    const path = location.pathname.substring(1) || 'dashboard';
+    const path = location.pathname.substring(1) || "dashboard";
     if (path !== currentView) {
       setCurrentView(path as View);
     }
@@ -41,7 +73,7 @@ export default function App() {
   // Clear page-specific state when navigating to prevent empty sidebars
   useEffect(() => {
     // Clear meeting and room details when leaving meeting-spaces page
-    if (!location.pathname.includes('meeting-spaces')) {
+    if (!location.pathname.includes("meeting-spaces")) {
       setSelectedMeetingDetails(null);
       setSelectedRoomDetails(null);
     }
@@ -56,11 +88,16 @@ export default function App() {
     setChatHistory,
     currentChatId,
     setCurrentChatId,
-    createNewChat
+    createNewChat,
   } = useChatStore();
 
   // Service Store
-  const { serviceTickets, setServiceTickets, selectedServiceTicket, setSelectedServiceTicket } = useServiceStore();
+  const {
+    serviceTickets,
+    setServiceTickets,
+    selectedServiceTicket,
+    setSelectedServiceTicket,
+  } = useServiceStore();
 
   // Meeting Store
   const {
@@ -88,17 +125,21 @@ export default function App() {
     offlineRoomResolution,
     setOfflineRoomResolution,
     checkOfflineMeetings,
-    autoCheckIn
+    autoCheckIn,
   } = useMeetingStore();
 
   // Catering order state
-  const [cateringOrderDetails, setCateringOrderDetails] = useState<CateringOrderDetails>({
-    items: [],
-    totalCost: 0,
-  });
-  const [isWaitingForMeetingSelection, setIsWaitingForMeetingSelection] = useState(false);
+  const [cateringOrderDetails, setCateringOrderDetails] =
+    useState<CateringOrderDetails>({
+      items: [],
+      totalCost: 0,
+    });
+  const [isWaitingForMeetingSelection, setIsWaitingForMeetingSelection] =
+    useState(false);
   const [cateringOrderSubmitted, setCateringOrderSubmitted] = useState(false);
-  const [cateringTicketNumber, setCateringTicketNumber] = useState<string | null>(null);
+  const [cateringTicketNumber, setCateringTicketNumber] = useState<
+    string | null
+  >(null);
 
   // Meeting details state - for meeting details sidebar
   const [selectedMeetingDetails, setSelectedMeetingDetails] = useState<{
@@ -138,9 +179,10 @@ export default function App() {
   } | null>(null);
 
   // Room details navigation context
-  const [roomDetailsNavigationContext, setRoomDetailsNavigationContext] = useState<{
-    previousSidebar: SidebarType;
-  } | null>(null);
+  const [roomDetailsNavigationContext, setRoomDetailsNavigationContext] =
+    useState<{
+      previousSidebar: SidebarType;
+    } | null>(null);
 
   // Navigation warning state
   const [showNavigationWarning, setShowNavigationWarning] = useState(false);
@@ -161,7 +203,9 @@ export default function App() {
   const [previewChatId, setPreviewChatId] = useState<string | null>(null);
 
   // Room highlighting state for AI assistant
-  const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(null);
+  const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(
+    null
+  );
 
   // Meeting syncing state
   const [syncingMeetings, setSyncingMeetings] = useState<string[]>([]);
@@ -173,38 +217,36 @@ export default function App() {
   // Note: performNavigation and handleNavigate definitions moved below (lines 983 and 956)
   const [notifications, setNotifications] = useState<any[]>([
     {
-      id: 'welcome-1',
-      type: 'info',
-      title: 'Welcome to Robin!',
-      description: 'Your workplace management dashboard is ready to use',
+      id: "welcome-1",
+      type: "info",
+      title: "Welcome to Robin!",
+      description: "Your workplace management dashboard is ready to use",
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
       read: true,
-      action: null
+      action: null,
     },
     {
-      id: 'system-1',
-      type: 'success',
-      title: 'System Update Complete',
-      description: 'All room displays have been updated successfully',
+      id: "system-1",
+      type: "success",
+      title: "System Update Complete",
+      description: "All room displays have been updated successfully",
       timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
       read: true,
-      action: null
-    }
+      action: null,
+    },
   ]);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
-
-
 
   // Function to open meeting details (cooperative with other sidebars)
   const handleOpenMeetingDetails = (meetingDetails: any) => {
     setSelectedMeetingDetails(meetingDetails);
-    setSidebarState('meeting-details');
+    setSidebarState("meeting-details");
   };
 
   // Function to close meeting details sidebar
   const handleCloseMeetingDetails = () => {
     setRoomDetailsNavigationContext(null);
-    setSidebarState('none');
+    setSidebarState("none");
   };
 
   // Function to clear meeting details state (separate from closing)
@@ -215,38 +257,61 @@ export default function App() {
 
   // Function to delete a meeting from the rooms data
   const handleDeleteMeeting = (meetingId: string) => {
-    const newRooms = allRooms.map(room => ({
+    // Find the meeting before deleting to show in toast
+    let deletedMeeting: Meeting | null = null;
+    for (const room of allRooms) {
+      const meeting = room.meetings.find((m) => m.id === meetingId);
+      if (meeting) {
+        deletedMeeting = meeting;
+        break;
+      }
+    }
+
+    const newRooms = allRooms.map((room) => ({
       ...room,
-      meetings: room.meetings.filter(meeting => meeting.id !== meetingId)
+      meetings: room.meetings.filter((meeting) => meeting.id !== meetingId),
     }));
     setRooms(newRooms);
+
+    // Show success toast
+    const meetingTitle = deletedMeeting?.title || "Meeting";
+    toast.success(`"${meetingTitle}" has been deleted successfully.`, {
+      duration: 3000,
+    });
   };
 
   // Function to edit a meeting and potentially move it to different rooms
-  const handleEditMeeting = (updatedMeeting: Meeting, selectedRooms: string[]) => {
+  const handleEditMeeting = (
+    updatedMeeting: Meeting,
+    selectedRooms: string[]
+  ) => {
     // First, remove the meeting from all rooms
-    const roomsWithoutMeeting = allRooms.map(room => ({
+    const roomsWithoutMeeting = allRooms.map((room) => ({
       ...room,
-      meetings: room.meetings.filter(meeting => meeting.id !== updatedMeeting.id)
+      meetings: room.meetings.filter(
+        (meeting) => meeting.id !== updatedMeeting.id
+      ),
     }));
 
     // Check if any of the new rooms require approval
     const anyRoomRequiresApproval = roomsWithoutMeeting
-      .filter(room => selectedRooms.includes(room.id))
-      .some(room => room.requestOnly);
+      .filter((room) => selectedRooms.includes(room.id))
+      .some((room) => room.requestOnly);
 
     // If moving to a non-request-only room, convert pending approval to regular meeting
     const finalMeeting = {
       ...updatedMeeting,
-      pendingApproval: anyRoomRequiresApproval ? updatedMeeting.pendingApproval : undefined
+      pendingApproval: anyRoomRequiresApproval
+        ? updatedMeeting.pendingApproval
+        : undefined,
     };
 
     // Then, add the updated meeting to the selected rooms
-    const newRooms = roomsWithoutMeeting.map(room => {
+    const newRooms = roomsWithoutMeeting.map((room) => {
       if (selectedRooms.includes(room.id)) {
         return {
           ...room,
-          meetings: [...room.meetings, finalMeeting]
+          meetings: [...room.meetings, finalMeeting],
         };
       }
       return room;
@@ -260,7 +325,7 @@ export default function App() {
   // Function to handle creating a new meeting
   const handleCreateMeeting = (roomId: string, startTime: number) => {
     setMeetingCreationContext({ roomId, startTime });
-    setSidebarState('create-meeting');
+    setSidebarState("create-meeting");
   };
 
   // Function to handle "Add Details" from AI room suggestions
@@ -271,9 +336,9 @@ export default function App() {
       title: requirements.title,
       duration: requirements.duration,
       attendees: requirements.attendees,
-      fromAiSuggestion: true
+      fromAiSuggestion: true,
     });
-    setSidebarState('create-meeting');
+    setSidebarState("create-meeting");
     // Keep the preview and highlighted room - don't clear them
   };
 
@@ -285,15 +350,15 @@ export default function App() {
       ...newMeeting,
       id: meetingId,
       // Mark as AI-created if it originated from an AI suggestion
-      ...(meetingCreationContext?.fromAiSuggestion && { aiCreated: true })
+      ...(meetingCreationContext?.fromAiSuggestion && { aiCreated: true }),
     };
 
     // Add the meeting to the selected rooms
-    const newRooms = allRooms.map(room => {
+    const newRooms = allRooms.map((room) => {
       if (selectedRooms.includes(room.id)) {
         return {
           ...room,
-          meetings: [...room.meetings, meetingWithId]
+          meetings: [...room.meetings, meetingWithId],
         };
       }
       return room;
@@ -308,17 +373,21 @@ export default function App() {
     }
 
     // Show success toast for all new meetings
-    const roomName = allRooms.find(r => selectedRooms.includes(r.id))?.name || 'room';
-    toast.success(`Meeting "${meetingWithId.title}" booked successfully in ${roomName}!`, {
-      duration: 3000,
-    });
+    const roomName =
+      allRooms.find((r) => selectedRooms.includes(r.id))?.name || "room";
+    toast.success(
+      `Meeting "${meetingWithId.title}" booked successfully in ${roomName}!`,
+      {
+        duration: 3000,
+      }
+    );
 
     // Clear the creation context
     setMeetingCreationContext(null);
 
     // Open meeting details sidebar for the newly created meeting
     // Use the first selected room for the meeting details
-    const primaryRoom = allRooms.find(r => selectedRooms.includes(r.id));
+    const primaryRoom = allRooms.find((r) => selectedRooms.includes(r.id));
     if (primaryRoom) {
       setSelectedMeetingDetails({
         meeting: {
@@ -327,31 +396,31 @@ export default function App() {
           organizer: meetingWithId.organizer,
           startTime: meetingWithId.startTime,
           duration: meetingWithId.duration,
-          attendees: meetingWithId.attendees
+          attendees: meetingWithId.attendees,
         },
-        room: primaryRoom
+        room: primaryRoom,
       });
       // Set sidebar state to meeting-details (replaces create-meeting, no stack push)
-      setSidebarState('meeting-details');
+      setSidebarState("meeting-details");
     } else {
       // Fallback: close sidebar if room not found
-      setSidebarState('none');
+      setSidebarState("none");
     }
   };
 
   // Function to cancel meeting creation
   const handleCancelMeetingCreation = () => {
     setMeetingCreationContext(null);
-    setSidebarState('none');
+    setSidebarState("none");
   };
 
   // Function to open room details sidebar
   const handleOpenRoomDetails = (room: Room) => {
     // Only track navigation context if we're currently in meeting details
-    if (sidebarState === 'meeting-details' && selectedMeetingDetails) {
+    if (sidebarState === "meeting-details" && selectedMeetingDetails) {
       setRoomDetailsNavigationContext({
-        previousSidebar: 'meeting-details',
-        previousMeetingDetails: selectedMeetingDetails
+        previousSidebar: "meeting-details",
+        previousMeetingDetails: selectedMeetingDetails,
       });
     } else {
       // Clear any existing navigation context
@@ -359,21 +428,26 @@ export default function App() {
     }
 
     setSelectedRoomDetails(room);
-    setSidebarState('room-details');
+    setSidebarState("room-details");
   };
 
   // Function to close room details sidebar
   const handleCloseRoomDetails = () => {
     setRoomDetailsNavigationContext(null);
-    setSidebarState('none');
+    setSidebarState("none");
   };
 
   // Function to go back from room details to meeting details
   const handleBackFromRoomDetails = () => {
-    if (roomDetailsNavigationContext?.previousSidebar === 'meeting-details' && roomDetailsNavigationContext.previousMeetingDetails) {
+    if (
+      roomDetailsNavigationContext?.previousSidebar === "meeting-details" &&
+      roomDetailsNavigationContext.previousMeetingDetails
+    ) {
       // Restore the previous meeting details
-      setSelectedMeetingDetails(roomDetailsNavigationContext.previousMeetingDetails);
-      setSidebarState('meeting-details');
+      setSelectedMeetingDetails(
+        roomDetailsNavigationContext.previousMeetingDetails
+      );
+      setSidebarState("meeting-details");
       setRoomDetailsNavigationContext(null);
     } else {
       // Fallback to just closing
@@ -387,15 +461,13 @@ export default function App() {
     setRoomDetailsNavigationContext(null);
   };
 
-
-
   // Function to toggle room offline status
   const handleToggleRoomOffline = (roomId: string, isOffline: boolean) => {
-    const newRooms = allRooms.map(room => {
+    const newRooms = allRooms.map((room) => {
       if (room.id === roomId) {
         return {
           ...room,
-          status: isOffline ? 'offline' : 'available'
+          status: isOffline ? "offline" : "available",
         };
       }
       return room;
@@ -404,15 +476,19 @@ export default function App() {
 
     // Update selected room details if this room is currently selected
     if (selectedRoomDetails?.id === roomId) {
-      setSelectedRoomDetails(prev => prev ? {
-        ...prev,
-        status: isOffline ? 'offline' : 'available'
-      } : null);
+      setSelectedRoomDetails((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: isOffline ? "offline" : "available",
+            }
+          : null
+      );
     }
 
     // Show toast notification
-    const room = allRooms.find(r => r.id === roomId);
-    const roomName = room?.name || 'Room';
+    const room = allRooms.find((r) => r.id === roomId);
+    const roomName = room?.name || "Room";
     if (isOffline) {
       toast.info(`${roomName} is now offline`, { duration: 3000 });
     } else {
@@ -426,37 +502,43 @@ export default function App() {
   };
 
   // Meeting preview update for AI assistant suggestions
-  const handleAiMeetingPreviewUpdate = useCallback((preview: {
-    roomId: string;
-    startTime: number;
-    duration: number;
-    title: string;
-  } | null) => {
-    setAiMeetingPreview(preview);
+  const handleAiMeetingPreviewUpdate = useCallback(
+    (
+      preview: {
+        roomId: string;
+        startTime: number;
+        duration: number;
+        title: string;
+      } | null
+    ) => {
+      setAiMeetingPreview(preview);
 
-    // Track which chat this preview belongs to
-    if (preview && currentChatId) {
-      setPreviewChatId(currentChatId);
-    } else if (!preview) {
-      setPreviewChatId(null);
-    }
-  }, [currentChatId]);
+      // Track which chat this preview belongs to
+      if (preview && currentChatId) {
+        setPreviewChatId(currentChatId);
+      } else if (!preview) {
+        setPreviewChatId(null);
+      }
+    },
+    [currentChatId]
+  );
 
   // Room selection from AI assistant - books meeting and creates confirmation messages
   const handleSelectRoom = (roomId: string, requirements: any) => {
     if (requirements?.startTime && roomId) {
       // Get room name and details
-      const room = allRooms.find(r => r.id === roomId);
-      const roomName = room?.name || 'Unknown Room';
+      const room = allRooms.find((r) => r.id === roomId);
+      const roomName = room?.name || "Unknown Room";
       const floor = room?.floor || 1;
 
       // Format time for display
       const formatTime = (timeSlot: number) => {
         const hour = Math.floor(timeSlot);
         const minutes = (timeSlot % 1) * 60;
-        const period = hour >= 12 ? 'PM' : 'AM';
+        const period = hour >= 12 ? "PM" : "AM";
         const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-        const displayMinutes = minutes === 0 ? '' : `:${minutes.toString().padStart(2, '0')}`;
+        const displayMinutes =
+          minutes === 0 ? "" : `:${minutes.toString().padStart(2, "0")}`;
         return `${displayHour}${displayMinutes} ${period}`;
       };
 
@@ -464,7 +546,7 @@ export default function App() {
       const duration = requirements.duration || 1;
       const attendees = requirements.attendees || 1;
       const features = requirements.features || [];
-      const title = requirements.title || 'New Meeting';
+      const title = requirements.title || "New Meeting";
 
       // Generate unique IDs with timestamps
       const timestamp = Date.now();
@@ -472,21 +554,27 @@ export default function App() {
       // Create user message requesting the booking
       const userMessage: Message = {
         id: `user-${timestamp}`,
-        content: `Book ${roomName} at ${startTimeStr} for ${duration}h with ${attendees} attendee${attendees > 1 ? 's' : ''}${features.length > 0 ? ` (${features.join(', ')})` : ''}`,
-        sender: 'user'
+        content: `Book ${roomName} at ${startTimeStr} for ${duration}h with ${attendees} attendee${
+          attendees > 1 ? "s" : ""
+        }${features.length > 0 ? ` (${features.join(", ")})` : ""}`,
+        sender: "user",
       };
 
       // Create AI confirmation message (with incremented timestamp to ensure uniqueness)
       const aiMessage: Message = {
         id: `ai-${timestamp + 1}`,
-        content: `Perfect! I've booked ${roomName} (Floor ${floor}) for "${title}" at ${startTimeStr} for ${duration} hour${duration > 1 ? 's' : ''}. The room is confirmed and ready for your ${attendees} attendee${attendees > 1 ? 's' : ''}.`,
-        sender: 'assistant'
+        content: `Perfect! I've booked ${roomName} (Floor ${floor}) for "${title}" at ${startTimeStr} for ${duration} hour${
+          duration > 1 ? "s" : ""
+        }. The room is confirmed and ready for your ${attendees} attendee${
+          attendees > 1 ? "s" : ""
+        }.`,
+        sender: "assistant",
       };
 
       // Update messages: hide room suggestions, add user request and AI confirmation
-      setAiAssistantMessages(prevMessages => {
+      setAiAssistantMessages((prevMessages) => {
         // Hide room suggestions in existing messages
-        const messagesWithoutSuggestions = prevMessages.map(msg =>
+        const messagesWithoutSuggestions = prevMessages.map((msg) =>
           msg.showRoomSuggestions ? { ...msg, showRoomSuggestions: false } : msg
         );
 
@@ -499,18 +587,18 @@ export default function App() {
       const newMeeting = {
         id: meetingId,
         title: title,
-        organizer: 'You',
+        organizer: "You",
         startTime: requirements.startTime,
         duration: duration,
         attendees: attendees,
         description: `Meeting scheduled via AI assistant in ${roomName}`,
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split("T")[0],
         attendeeList: [],
         rooms: [roomId],
-        aiCreated: true
+        aiCreated: true,
       };
 
-      // Clear AI preview immediately 
+      // Clear AI preview immediately
       setAiMeetingPreview(null);
       setPreviewChatId(null);
       if (handleHighlightRoom) {
@@ -518,11 +606,11 @@ export default function App() {
       }
 
       // Add the meeting to the selected room
-      const newRooms = allRooms.map(room => {
+      const newRooms = allRooms.map((room) => {
         if (room.id === roomId) {
           return {
             ...room,
-            meetings: [...room.meetings, newMeeting]
+            meetings: [...room.meetings, newMeeting],
           };
         }
         return room;
@@ -530,20 +618,23 @@ export default function App() {
       setRooms(newRooms);
 
       // Start syncing state for this meeting
-      setSyncingMeetings(prev => new Set(prev).add(meetingId));
+      setSyncingMeetings((prev) => new Set(prev).add(meetingId));
 
       // Clear syncing state after 4 seconds and show success toast
       setTimeout(() => {
-        setSyncingMeetings(prev => {
+        setSyncingMeetings((prev) => {
           const newSet = new Set(prev);
           newSet.delete(meetingId);
           return newSet;
         });
 
         // Show success toast after loading animation completes
-        toast.success(`Meeting "${newMeeting.title}" booked successfully in ${roomName}!`, {
-          duration: 3000,
-        });
+        toast.success(
+          `Meeting "${newMeeting.title}" booked successfully in ${roomName}!`,
+          {
+            duration: 3000,
+          }
+        );
       }, 4000);
     }
   };
@@ -551,13 +642,15 @@ export default function App() {
   // Handle meeting selection for catering
   const handleMeetingSelectedForCatering = (meeting: Meeting, room: Room) => {
     // Only process if we're actually waiting for catering meeting selection
-    const hasEzCaterAgent = aiAssistantMessages.some(msg => msg.agentType === 'ezcater');
+    const hasEzCaterAgent = aiAssistantMessages.some(
+      (msg) => msg.agentType === "ezcater"
+    );
     if (!hasEzCaterAgent) return;
 
     const startTimeStr = formatTimeFloat(meeting.startTime);
 
     // Remove the meeting list widget but keep the message
-    const updatedMessages = aiAssistantMessages.map(msg => {
+    const updatedMessages = aiAssistantMessages.map((msg) => {
       if (msg.showMeetingListWidget) {
         return {
           ...msg,
@@ -572,7 +665,7 @@ export default function App() {
     const userMessage: Message = {
       id: `user-${timestamp}`,
       content: `I'd like to add catering to "${meeting.title}" at ${startTimeStr} in ${room.name} for ${meeting.attendees} attendees.`,
-      sender: 'user'
+      sender: "user",
     };
 
     // Update catering order with meeting details
@@ -584,7 +677,7 @@ export default function App() {
         attendees: meeting.attendees,
       },
       items: [],
-      totalCost: 0
+      totalCost: 0,
     });
 
     // Add user message to conversation (with widget removed)
@@ -595,9 +688,9 @@ export default function App() {
       // Add assistant response
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
+        role: "assistant",
         content: `Perfect! I've noted that you want catering for "${meeting.title}" at ${startTimeStr} in ${room.name} for ${meeting.attendees} attendees. What would you like to order? I can help you browse menus from local restaurants and caterers.`,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       addMessage(assistantMessage);
@@ -607,8 +700,8 @@ export default function App() {
       // Animation time: 2000ms bouncing + 220 chars * 20ms + 100ms cleanup = 6500ms
       // Add 500ms buffer to ensure typing is completely finished before card appears
       setTimeout(() => {
-        setAiAssistantMessages(prevMessages =>
-          prevMessages.map(m =>
+        setAiAssistantMessages((prevMessages) =>
+          prevMessages.map((m) =>
             m.id === `ai-${timestamp + 1}`
               ? { ...m, showCuisineOptions: true }
               : m
@@ -627,14 +720,15 @@ export default function App() {
 
     const prevIndex = offlineRoomResolution.currentIndex - 1;
     // Wrap around to end if at the start
-    const newIndex = prevIndex < 0
-      ? offlineRoomResolution.affectedMeetings.length - 1
-      : prevIndex;
+    const newIndex =
+      prevIndex < 0
+        ? offlineRoomResolution.affectedMeetings.length - 1
+        : prevIndex;
 
     setOfflineRoomResolution({
       ...offlineRoomResolution,
       currentIndex: newIndex,
-      selectedAlternativeRoomId: null // Reset selection for new meeting
+      selectedAlternativeRoomId: null, // Reset selection for new meeting
     });
   };
 
@@ -644,43 +738,56 @@ export default function App() {
 
     setOfflineRoomResolution({
       ...offlineRoomResolution,
-      selectedAlternativeRoomId: roomId
+      selectedAlternativeRoomId: roomId,
     });
   };
 
   // Handler to move current offline meeting to selected alternative room
   const handleMoveOfflineMeeting = () => {
-    if (!offlineRoomResolution || !offlineRoomResolution.selectedAlternativeRoomId) return;
+    if (
+      !offlineRoomResolution ||
+      !offlineRoomResolution.selectedAlternativeRoomId
+    )
+      return;
 
-    const currentMeetingData = offlineRoomResolution.affectedMeetings[offlineRoomResolution.currentIndex];
+    const currentMeetingData =
+      offlineRoomResolution.affectedMeetings[
+        offlineRoomResolution.currentIndex
+      ];
     const targetRoomId = offlineRoomResolution.selectedAlternativeRoomId;
 
     // Move the meeting
     handleEditMeeting(currentMeetingData.meeting, [targetRoomId]);
 
     // Remove this meeting from affected meetings list
-    const updatedAffectedMeetings = offlineRoomResolution.affectedMeetings.filter(
-      (_, index) => index !== offlineRoomResolution.currentIndex
-    );
+    const updatedAffectedMeetings =
+      offlineRoomResolution.affectedMeetings.filter(
+        (_, index) => index !== offlineRoomResolution.currentIndex
+      );
 
     if (updatedAffectedMeetings.length === 0) {
       // No more meetings to resolve
       setOfflineRoomResolution(null);
-      toast.success('All offline room meetings have been relocated!', { duration: 3000 });
+      toast.success("All offline room meetings have been relocated!", {
+        duration: 3000,
+      });
     } else {
       // Move to next meeting (or stay at same index if we were on the last one)
-      const newIndex = offlineRoomResolution.currentIndex >= updatedAffectedMeetings.length
-        ? updatedAffectedMeetings.length - 1
-        : offlineRoomResolution.currentIndex;
+      const newIndex =
+        offlineRoomResolution.currentIndex >= updatedAffectedMeetings.length
+          ? updatedAffectedMeetings.length - 1
+          : offlineRoomResolution.currentIndex;
 
       setOfflineRoomResolution({
         affectedMeetings: updatedAffectedMeetings,
         currentIndex: newIndex,
-        selectedAlternativeRoomId: null
+        selectedAlternativeRoomId: null,
       });
 
-      const room = allRooms.find(r => r.id === targetRoomId);
-      toast.success(`Meeting moved to ${room?.name || 'new room'}!`, { duration: 3000 });
+      const room = allRooms.find((r) => r.id === targetRoomId);
+      toast.success(`Meeting moved to ${room?.name || "new room"}!`, {
+        duration: 3000,
+      });
     }
   };
 
@@ -690,14 +797,15 @@ export default function App() {
 
     const nextIndex = offlineRoomResolution.currentIndex + 1;
     // Wrap around to start if at the end
-    const newIndex = nextIndex >= offlineRoomResolution.affectedMeetings.length
-      ? 0
-      : nextIndex;
+    const newIndex =
+      nextIndex >= offlineRoomResolution.affectedMeetings.length
+        ? 0
+        : nextIndex;
 
     setOfflineRoomResolution({
       ...offlineRoomResolution,
       currentIndex: newIndex,
-      selectedAlternativeRoomId: null
+      selectedAlternativeRoomId: null,
     });
   };
 
@@ -706,23 +814,25 @@ export default function App() {
     if (!offlineRoomResolution) return;
 
     // Remove this meeting from affected meetings list
-    const updatedAffectedMeetings = offlineRoomResolution.affectedMeetings.filter(
-      (_, index) => index !== offlineRoomResolution.currentIndex
-    );
+    const updatedAffectedMeetings =
+      offlineRoomResolution.affectedMeetings.filter(
+        (_, index) => index !== offlineRoomResolution.currentIndex
+      );
 
     if (updatedAffectedMeetings.length === 0) {
       // No more meetings to resolve
       setOfflineRoomResolution(null);
     } else {
       // Move to next meeting (or stay at same index if we were on the last one)
-      const newIndex = offlineRoomResolution.currentIndex >= updatedAffectedMeetings.length
-        ? updatedAffectedMeetings.length - 1
-        : offlineRoomResolution.currentIndex;
+      const newIndex =
+        offlineRoomResolution.currentIndex >= updatedAffectedMeetings.length
+          ? updatedAffectedMeetings.length - 1
+          : offlineRoomResolution.currentIndex;
 
       setOfflineRoomResolution({
         affectedMeetings: updatedAffectedMeetings,
         currentIndex: newIndex,
-        selectedAlternativeRoomId: null
+        selectedAlternativeRoomId: null,
       });
     }
   };
@@ -761,11 +871,11 @@ export default function App() {
 
   // Handlers for time navigation - cycles through three windows
   const handleTimeWindowPrevious = () => {
-    setTimeWindowStart(prev => getPreviousTimeWindow(prev));
+    setTimeWindowStart((prev) => getPreviousTimeWindow(prev));
   };
 
   const handleTimeWindowNext = () => {
-    setTimeWindowStart(prev => getNextTimeWindow(prev));
+    setTimeWindowStart((prev) => getNextTimeWindow(prev));
   };
 
   const handleTimeWindowNow = () => {
@@ -773,10 +883,12 @@ export default function App() {
   };
 
   // Use shared filter function (imported as filterRooms to avoid naming conflict)
-  const getFilteredRoomsLocal = (rooms: Room[], filters: MeetingRoomFilters): Room[] => {
+  const getFilteredRoomsLocal = (
+    rooms: Room[],
+    filters: MeetingRoomFilters
+  ): Room[] => {
     return filterRooms(rooms, filters, demoTimeOverride);
   };
-
 
   // Demo mode: Override current time for demonstration purposes
   // const [demoTimeOverride, setDemoTimeOverride] = React.useState<number | null>(null); // Moved to useMeetingStore
@@ -815,46 +927,46 @@ export default function App() {
     checkOfflineMeetings();
   }, [rooms, demoTimeOverride, checkOfflineMeetings]);
 
-
   const handleNotificationClick = (notification: any) => {
     // Mark notification as read
-    setNotifications(prev =>
-      prev.map(n =>
-        n.id === notification.id ? { ...n, read: true } : n
-      )
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
     );
 
     // Check if any notifications are still unread
-    const stillHasUnread = notifications.some(n => n.id !== notification.id && !n.read);
+    const stillHasUnread = notifications.some(
+      (n) => n.id !== notification.id && !n.read
+    );
     setHasUnreadNotifications(stillHasUnread);
 
     // Handle navigation based on notification action
-    if (notification.action === 'view-tickets') {
-      setCurrentView('tickets');
-    } else if (notification.action === 'view-meeting-spaces') {
-      setCurrentView('meeting-spaces');
+    if (notification.action === "view-tickets") {
+      setCurrentView("tickets");
+    } else if (notification.action === "view-meeting-spaces") {
+      setCurrentView("meeting-spaces");
     }
   };
 
   const handleNotificationPopoverClose = () => {
     // Mark all unread notifications as read when popover closes
-    const hasUnread = notifications.some(n => !n.read);
+    const hasUnread = notifications.some((n) => !n.read);
     if (hasUnread) {
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setHasUnreadNotifications(false);
     }
   };
 
   // Chat history management functions
   const generateChatTitle = (messages: Message[]): string => {
-    const userMessages = messages.filter(m => m.sender === 'user');
-    if (userMessages.length === 0) return 'New Chat';
+    const userMessages = messages.filter((m) => m.sender === "user");
+    if (userMessages.length === 0) return "New Chat";
 
     const firstMessage = userMessages[0].content;
     // Take first 50 characters and add ellipsis if longer
-    return firstMessage.length > 50 ? firstMessage.substring(0, 50) + '...' : firstMessage;
+    return firstMessage.length > 50
+      ? firstMessage.substring(0, 50) + "..."
+      : firstMessage;
   };
-
 
   const saveCurrentChatToHistory = () => {
     if (aiAssistantMessages.length === 0) return;
@@ -863,12 +975,15 @@ export default function App() {
       id: currentChatId || Date.now().toString(),
       title: generateChatTitle(aiAssistantMessages),
       messages: [...aiAssistantMessages],
-      createdAt: currentChatId ? chatHistory.find(c => c.id === currentChatId)?.createdAt || new Date().toISOString() : new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: currentChatId
+        ? chatHistory.find((c) => c.id === currentChatId)?.createdAt ||
+          new Date().toISOString()
+        : new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    setChatHistory(prev => {
-      const existingIndex = prev.findIndex(c => c.id === chatSession.id);
+    setChatHistory((prev) => {
+      const existingIndex = prev.findIndex((c) => c.id === chatSession.id);
       if (existingIndex >= 0) {
         // Update existing chat
         const updated = [...prev];
@@ -893,7 +1008,7 @@ export default function App() {
     // Check if this chat has active room suggestions and restore preview
     const lastMessageWithSuggestions = [...chatSession.messages]
       .reverse()
-      .find(msg => msg.showRoomSuggestions && msg.meetingRequirements);
+      .find((msg) => msg.showRoomSuggestions && msg.meetingRequirements);
 
     if (lastMessageWithSuggestions?.meetingRequirements) {
       // Restore the preview for this chat
@@ -932,12 +1047,14 @@ export default function App() {
           id: currentChatId,
           title: generateChatTitle(messages),
           messages: [...messages],
-          createdAt: chatHistory.find(c => c.id === currentChatId)?.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt:
+            chatHistory.find((c) => c.id === currentChatId)?.createdAt ||
+            new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
 
-        setChatHistory(prev => {
-          const existingIndex = prev.findIndex(c => c.id === currentChatId);
+        setChatHistory((prev) => {
+          const existingIndex = prev.findIndex((c) => c.id === currentChatId);
           if (existingIndex >= 0) {
             const updated = [...prev];
             updated[existingIndex] = chatSession;
@@ -961,8 +1078,8 @@ export default function App() {
     setCurrentView(view);
 
     // Close sidebar on navigation unless it's a persistent one like AI assistant
-    if (sidebarState !== 'ai-assistant') {
-      setSidebarState('none');
+    if (sidebarState !== "ai-assistant") {
+      setSidebarState("none");
     }
   };
 
@@ -971,18 +1088,17 @@ export default function App() {
     setSidebarState(type);
 
     // If opening AI assistant, ensure we have a chat session
-    if (type === 'ai-assistant' && !currentChatId) {
+    if (type === "ai-assistant" && !currentChatId) {
       createNewChat();
     }
   };
-
 
   const performNavigation = (view: View) => {
     setCurrentView(view);
 
     // Manage sidebar state on navigation
-    if (sidebarState !== 'ai-assistant') {
-      setSidebarState('none');
+    if (sidebarState !== "ai-assistant") {
+      setSidebarState("none");
     }
   };
 
@@ -1005,41 +1121,47 @@ export default function App() {
   };
 
   // Service ticket handlers
-  const handleCreateServiceTicket = useCallback((ticketData: Omit<ServiceTicket, 'id' | 'created' | 'lastUpdated'>) => {
-    const ticketId = `SRV-${Date.now().toString().slice(-6)}`;
-    const now = new Date().toISOString();
-    const newTicket: ServiceTicket = {
-      id: ticketId,
-      ...ticketData,
-      created: now,
-      lastUpdated: now,
-    };
+  const handleCreateServiceTicket = useCallback(
+    (ticketData: Omit<ServiceTicket, "id" | "created" | "lastUpdated">) => {
+      const ticketId = `SRV-${Date.now().toString().slice(-6)}`;
+      const now = new Date().toISOString();
+      const newTicket: ServiceTicket = {
+        id: ticketId,
+        ...ticketData,
+        created: now,
+        lastUpdated: now,
+      };
 
-    setServiceTickets(prev => [newTicket, ...prev]);
+      setServiceTickets((prev) => [newTicket, ...prev]);
 
-    // Store the ticket number for the AI to reference (especially for catering orders)
-    setCateringTicketNumber(ticketId);
+      // Store the ticket number for the AI to reference (especially for catering orders)
+      setCateringTicketNumber(ticketId);
 
-    return newTicket;
-  }, []);
+      return newTicket;
+    },
+    []
+  );
 
-  const handleOpenServiceTicket = useCallback((ticketId: string) => {
-    const ticket = serviceTickets.find(t => t.id === ticketId);
-    if (ticket) {
-      setSelectedServiceTicket(ticket);
-      setSidebarState('service-ticket');
-    }
-  }, [serviceTickets]);
+  const handleOpenServiceTicket = useCallback(
+    (ticketId: string) => {
+      const ticket = serviceTickets.find((t) => t.id === ticketId);
+      if (ticket) {
+        setSelectedServiceTicket(ticket);
+        setSidebarState("service-ticket");
+      }
+    },
+    [serviceTickets]
+  );
 
   const handleCloseServiceTicket = useCallback(() => {
-    setSidebarState('none');
+    setSidebarState("none");
     setSelectedServiceTicket(null);
   }, []);
 
   const handleBackFromServiceTicket = useCallback(() => {
     // Navigate back to AI assistant if it was open
-    if (sidebarState === 'ai-assistant') {
-      setSidebarState('ai-assistant');
+    if (sidebarState === "ai-assistant") {
+      setSidebarState("ai-assistant");
       setSelectedServiceTicket(null);
     } else {
       handleCloseServiceTicket();
@@ -1048,125 +1170,145 @@ export default function App() {
 
   const handleNavigateToTicket = useCallback((ticketId: string) => {
     // Navigate to meeting-services page and open ticket sidebar
-    setCurrentView('meeting-services');
+    setCurrentView("meeting-services");
 
     // Use functional update to access the latest serviceTickets state
-    setServiceTickets(currentTickets => {
-      const ticket = currentTickets.find(t => t.id === ticketId);
+    setServiceTickets((currentTickets) => {
+      const ticket = currentTickets.find((t) => t.id === ticketId);
       if (ticket) {
         setSelectedServiceTicket(ticket);
-        setSidebarState('service-ticket');
+        setSidebarState("service-ticket");
       }
       return currentTickets; // Don't modify the tickets, just use this to access latest state
     });
   }, []);
 
-
-
   return (
     <>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/meeting-spaces" element={
-          <MeetingSpacesPage
-            notifications={notifications}
-            hasUnreadNotifications={hasUnreadNotifications}
-            onNotificationClick={handleNotificationClick}
-            onNotificationPopoverClose={handleNotificationPopoverClose}
-            aiAssistantMessages={aiAssistantMessages}
-            onAiAssistantMessagesUpdate={handleAiAssistantMessagesUpdate}
-            chatHistory={chatHistory}
-            onLoadChatFromHistory={loadChatFromHistory}
-            onStartNewChat={startNewChat}
-            selectedMeetingDetails={selectedMeetingDetails}
-            onCloseMeetingDetails={handleCloseMeetingDetails}
-            onOpenMeetingDetails={handleOpenMeetingDetails}
-            onClearMeetingDetails={handleClearMeetingDetails}
-            rooms={getFilteredRoomsLocal(rooms, activeFilters)}
-            allRooms={allRooms}
-            activeFilters={activeFilters}
-            onFiltersChange={setActiveFilters}
-            onDeleteMeeting={handleDeleteMeeting}
-            onEditMeeting={handleEditMeeting}
-            onCreateMeeting={handleCreateMeeting}
-            meetingCreationContext={meetingCreationContext}
-            onSaveNewMeeting={handleSaveNewMeeting}
-            onCancelMeetingCreation={handleCancelMeetingCreation}
-            spotlightMyEvents={spotlightMyEvents}
-            onSpotlightMyEventsChange={setSpotlightMyEvents}
-            compactView={compactView}
-            onCompactViewChange={setCompactView}
-            selectedTimezones={selectedTimezones}
-            onSelectedTimezonesChange={setSelectedTimezones}
-            onPendingMoveChange={handlePendingMoveChange}
-            selectedRoomDetails={selectedRoomDetails}
-            onOpenRoomDetails={handleOpenRoomDetails}
-            onCloseRoomDetails={handleCloseRoomDetails}
-            onClearRoomDetails={handleClearRoomDetails}
-            onBackFromRoomDetails={handleBackFromRoomDetails}
-            showRoomDetailsBackButton={roomDetailsNavigationContext?.previousSidebar === 'meeting-details'}
-            aiMeetingPreview={aiMeetingPreview}
-            highlightedRoomId={highlightedRoomId}
-            onHighlightRoom={handleHighlightRoom}
-            onAiMeetingPreviewUpdate={handleAiMeetingPreviewUpdate}
-            onSelectRoom={handleSelectRoom}
-            onAddDetails={handleAddDetailsFromAi}
-            syncingMeetings={syncingMeetings}
-            onMeetingSelectedForCatering={handleMeetingSelectedForCatering}
-            cateringOrderDetails={cateringOrderDetails as any}
-            onCateringOrderUpdate={setCateringOrderDetails}
-            cateringOrderSubmitted={cateringOrderSubmitted}
-            onCateringOrderSubmittedChange={setCateringOrderSubmitted}
-            onCreateServiceTicket={handleCreateServiceTicket}
-            onNavigateToTicket={handleNavigateToTicket}
-            cateringTicketNumber={cateringTicketNumber}
-            onCateringTicketNumberChange={setCateringTicketNumber}
-            serviceTickets={serviceTickets}
-            onOpenServiceTicket={handleOpenServiceTicket}
-            selectedServiceTicket={selectedServiceTicket}
-            onCloseServiceTicket={handleCloseServiceTicket}
-            onBackFromServiceTicket={handleBackFromServiceTicket}
-            pinnedRoomIds={pinnedRoomIds}
-            onTogglePin={togglePinnedRoom}
-            timeWindowStart={timeWindowStart}
-            onTimeWindowPrevious={handleTimeWindowPrevious}
-            onTimeWindowNext={handleTimeWindowNext}
-            onTimeWindowNow={handleTimeWindowNow}
-            meetingSpacesViewMode={meetingSpacesViewMode}
-            onMeetingSpacesViewModeChange={setMeetingSpacesViewMode}
-            selectedMonthViewRoom={selectedMonthViewRoom}
-            onSelectedMonthViewRoomChange={setSelectedMonthViewRoom}
-            demoTimeOverride={demoTimeOverride}
-            onDemoTimeOverrideChange={setDemoTimeOverride}
-            onToggleRoomOffline={handleToggleRoomOffline}
-            offlineRoomResolution={offlineRoomResolution}
-            onNextOfflineMeeting={handleNextOfflineMeeting}
-            onPreviousOfflineMeeting={handlePreviousOfflineMeeting}
-            onSelectOfflineAlternativeRoom={handleSelectOfflineAlternativeRoom}
-            onMoveOfflineMeeting={handleMoveOfflineMeeting}
-            onSkipOfflineMeeting={handleSkipOfflineMeeting}
-          />
-        } />
-        <Route path="*" element={
-          <PageLayout pageTitle={getPageTitle(currentView)}>
-            <div className="p-6">
-              <div className="text-center py-12">
-                <h2 className="text-gray-600 mb-2" style={{ fontSize: '30px', fontWeight: 400 }}>{getPageTitle(currentView)}</h2>
-                <p className="text-gray-500">This page is under development.</p>
+        <Route
+          path="/meeting-spaces"
+          element={
+            <MeetingSpacesPage
+              notifications={notifications}
+              hasUnreadNotifications={hasUnreadNotifications}
+              onNotificationClick={handleNotificationClick}
+              onNotificationPopoverClose={handleNotificationPopoverClose}
+              aiAssistantMessages={aiAssistantMessages}
+              onAiAssistantMessagesUpdate={handleAiAssistantMessagesUpdate}
+              chatHistory={chatHistory}
+              onLoadChatFromHistory={loadChatFromHistory}
+              onStartNewChat={startNewChat}
+              selectedMeetingDetails={selectedMeetingDetails}
+              onCloseMeetingDetails={handleCloseMeetingDetails}
+              onOpenMeetingDetails={handleOpenMeetingDetails}
+              onClearMeetingDetails={handleClearMeetingDetails}
+              rooms={getFilteredRoomsLocal(rooms, activeFilters)}
+              allRooms={allRooms}
+              activeFilters={activeFilters}
+              onFiltersChange={setActiveFilters}
+              onDeleteMeeting={handleDeleteMeeting}
+              onEditMeeting={handleEditMeeting}
+              onCreateMeeting={handleCreateMeeting}
+              meetingCreationContext={meetingCreationContext}
+              onSaveNewMeeting={handleSaveNewMeeting}
+              onCancelMeetingCreation={handleCancelMeetingCreation}
+              spotlightMyEvents={spotlightMyEvents}
+              onSpotlightMyEventsChange={setSpotlightMyEvents}
+              compactView={compactView}
+              onCompactViewChange={setCompactView}
+              selectedTimezones={selectedTimezones}
+              onSelectedTimezonesChange={setSelectedTimezones}
+              onPendingMoveChange={handlePendingMoveChange}
+              selectedRoomDetails={selectedRoomDetails}
+              onOpenRoomDetails={handleOpenRoomDetails}
+              onCloseRoomDetails={handleCloseRoomDetails}
+              onClearRoomDetails={handleClearRoomDetails}
+              onBackFromRoomDetails={handleBackFromRoomDetails}
+              showRoomDetailsBackButton={
+                roomDetailsNavigationContext?.previousSidebar ===
+                "meeting-details"
+              }
+              aiMeetingPreview={aiMeetingPreview}
+              highlightedRoomId={highlightedRoomId}
+              onHighlightRoom={handleHighlightRoom}
+              onAiMeetingPreviewUpdate={handleAiMeetingPreviewUpdate}
+              onSelectRoom={handleSelectRoom}
+              onAddDetails={handleAddDetailsFromAi}
+              syncingMeetings={syncingMeetings}
+              onMeetingSelectedForCatering={handleMeetingSelectedForCatering}
+              cateringOrderDetails={cateringOrderDetails as any}
+              onCateringOrderUpdate={setCateringOrderDetails}
+              cateringOrderSubmitted={cateringOrderSubmitted}
+              onCateringOrderSubmittedChange={setCateringOrderSubmitted}
+              onCreateServiceTicket={handleCreateServiceTicket}
+              onNavigateToTicket={handleNavigateToTicket}
+              cateringTicketNumber={cateringTicketNumber}
+              onCateringTicketNumberChange={setCateringTicketNumber}
+              serviceTickets={serviceTickets}
+              onOpenServiceTicket={handleOpenServiceTicket}
+              selectedServiceTicket={selectedServiceTicket}
+              onCloseServiceTicket={handleCloseServiceTicket}
+              onBackFromServiceTicket={handleBackFromServiceTicket}
+              pinnedRoomIds={pinnedRoomIds}
+              onTogglePin={togglePinnedRoom}
+              timeWindowStart={timeWindowStart}
+              onTimeWindowPrevious={handleTimeWindowPrevious}
+              onTimeWindowNext={handleTimeWindowNext}
+              onTimeWindowNow={handleTimeWindowNow}
+              meetingSpacesViewMode={meetingSpacesViewMode}
+              onMeetingSpacesViewModeChange={setMeetingSpacesViewMode}
+              selectedMonthViewRoom={selectedMonthViewRoom}
+              onSelectedMonthViewRoomChange={setSelectedMonthViewRoom}
+              demoTimeOverride={demoTimeOverride}
+              onDemoTimeOverrideChange={setDemoTimeOverride}
+              onToggleRoomOffline={handleToggleRoomOffline}
+              offlineRoomResolution={offlineRoomResolution}
+              onNextOfflineMeeting={handleNextOfflineMeeting}
+              onPreviousOfflineMeeting={handlePreviousOfflineMeeting}
+              onSelectOfflineAlternativeRoom={
+                handleSelectOfflineAlternativeRoom
+              }
+              onMoveOfflineMeeting={handleMoveOfflineMeeting}
+              onSkipOfflineMeeting={handleSkipOfflineMeeting}
+            />
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <PageLayout pageTitle={getPageTitle(currentView)}>
+              <div className="p-6">
+                <div className="text-center py-12">
+                  <h2
+                    className="text-gray-600 mb-2"
+                    style={{ fontSize: "30px", fontWeight: 400 }}
+                  >
+                    {getPageTitle(currentView)}
+                  </h2>
+                  <p className="text-gray-500">
+                    This page is under development.
+                  </p>
+                </div>
               </div>
-            </div>
-          </PageLayout>
-        } />
+            </PageLayout>
+          }
+        />
       </Routes>
       <Toaster position="top-center" />
 
       {/* Navigation Warning Dialog */}
-      <AlertDialog open={showNavigationWarning} onOpenChange={setShowNavigationWarning}>
+      <AlertDialog
+        open={showNavigationWarning}
+        onOpenChange={setShowNavigationWarning}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Unsaved Meeting Move</AlertDialogTitle>
             <AlertDialogDescription>
-              You have a meeting move in progress that hasn't been confirmed yet. If you navigate away now, your changes will be lost.
+              You have a meeting move in progress that hasn't been confirmed
+              yet. If you navigate away now, your changes will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
