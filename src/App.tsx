@@ -308,7 +308,7 @@ export default function App() {
       setPreviewChatId(null);
 
       // Show success toast
-      const roomName = rooms.find(r => selectedRooms.includes(r.id))?.name || 'room';
+      const roomName = allRooms.find(r => selectedRooms.includes(r.id))?.name || 'room';
       toast.success(`Meeting "${meetingWithId.title}" booked successfully in ${roomName}!`, {
         duration: 3000,
       });
@@ -319,7 +319,7 @@ export default function App() {
 
     // Open meeting details sidebar for the newly created meeting
     // Use the first selected room for the meeting details
-    const primaryRoom = rooms.find(r => selectedRooms.includes(r.id));
+    const primaryRoom = allRooms.find(r => selectedRooms.includes(r.id));
     if (primaryRoom) {
       setSelectedMeetingDetails({
         meeting: {
@@ -412,7 +412,7 @@ export default function App() {
     }
 
     // Show toast notification
-    const room = rooms.find(r => r.id === roomId);
+    const room = allRooms.find(r => r.id === roomId);
     const roomName = room?.name || 'Room';
     if (isOffline) {
       toast.info(`${roomName} is now offline`, { duration: 3000 });
@@ -447,7 +447,7 @@ export default function App() {
   const handleSelectRoom = (roomId: string, requirements: any) => {
     if (requirements?.startTime && roomId) {
       // Get room name and details
-      const room = rooms.find(r => r.id === roomId);
+      const room = allRooms.find(r => r.id === roomId);
       const roomName = room?.name || 'Unknown Room';
       const floor = room?.floor || 1;
 
@@ -680,7 +680,7 @@ export default function App() {
         selectedAlternativeRoomId: null
       });
 
-      const room = rooms.find(r => r.id === targetRoomId);
+      const room = allRooms.find(r => r.id === targetRoomId);
       toast.success(`Meeting moved to ${room?.name || 'new room'}!`, { duration: 3000 });
     }
   };
@@ -1084,7 +1084,7 @@ export default function App() {
             onOpenMeetingDetails={handleOpenMeetingDetails}
             onClearMeetingDetails={handleClearMeetingDetails}
             rooms={getFilteredRoomsLocal(rooms, activeFilters)}
-            allRooms={rooms}
+            allRooms={allRooms}
             activeFilters={activeFilters}
             onFiltersChange={setActiveFilters}
             onDeleteMeeting={handleDeleteMeeting}

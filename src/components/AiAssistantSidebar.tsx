@@ -198,11 +198,14 @@ export function AiAssistantSidebar({
   externalCateringTicketNumber,
   onCateringTicketNumberChange,
 }: AiAssistantSidebarProps) {
+  // Ensure existingMessages is always an array
+  const normalizedExistingMessages = Array.isArray(existingMessages) ? existingMessages : [];
+  
   const [messages, setMessages] =
-    useState<Message[]>(existingMessages);
+    useState<Message[]>(normalizedExistingMessages);
   const [inputValue, setInputValue] = useState("");
   const [hasStartedChat, setHasStartedChat] = useState(
-    existingMessages.length > 0,
+    normalizedExistingMessages.length > 0,
   );
   const [showChatHistory, setShowChatHistory] = useState(false);
   const [shouldAutoPopulateInput, setShouldAutoPopulateInput] =
@@ -249,12 +252,15 @@ export function AiAssistantSidebar({
 
   // Update messages when existingMessages prop changes
   React.useEffect(() => {
-    setMessages(existingMessages);
-    setHasStartedChat(existingMessages.length > 0);
+    // Ensure existingMessages is always an array
+    const messagesArray = Array.isArray(existingMessages) ? existingMessages : [];
+    
+    setMessages(messagesArray);
+    setHasStartedChat(messagesArray.length > 0);
     
     // Initialize thinking progress for any thinking messages that already exist
     // This ensures completed thinking states are preserved when reopening the sidebar
-    const thinkingMessages = existingMessages.filter(m => m.isThinking && m.thinkingText);
+    const thinkingMessages = messagesArray.filter(m => m.isThinking && m.thinkingText);
     const newThinkingProgress: Record<string, { visibleLines: number; totalLines: number; isComplete: boolean }> = {};
     
     thinkingMessages.forEach(message => {
@@ -282,7 +288,7 @@ export function AiAssistantSidebar({
     
     // Mark completed typing messages as initialized AND complete so they don't re-animate
     // Messages that don't have isTyping: true are considered complete
-    existingMessages.forEach(message => {
+    messagesArray.forEach(message => {
       if (message.sender === 'assistant' && !message.isTyping) {
         initializedTypingMessages.current.add(message.id);
         completedTypingMessages.current.add(message.id);

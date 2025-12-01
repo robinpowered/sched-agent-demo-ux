@@ -24,7 +24,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     currentChatId: null,
     isThinking: false,
 
-    setMessages: (messages) => set({ messages }),
+    setMessages: (messages) => set({ messages: Array.isArray(messages) ? messages : [] }),
 
     addMessage: (message) => set((state) => ({
         messages: [...state.messages, message]
@@ -42,7 +42,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     },
 
     loadChat: (session) => set({
-        messages: session.messages,
+        messages: Array.isArray(session.messages) ? session.messages : [],
         currentChatId: session.id
     }),
 
