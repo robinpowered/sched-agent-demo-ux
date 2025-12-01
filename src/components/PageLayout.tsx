@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationsPopover } from './NotificationsPopover';
 import { AiAssistantSidebar } from './AiAssistantSidebar';
 import { MeetingDetailsSidebar } from './MeetingDetailsSidebar';
@@ -313,6 +313,7 @@ export function PageLayout({
 }: PageLayoutProps) {
   const [selectedLocation, setSelectedLocation] = useState("54 State St.");
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Use global UI store
   const {
@@ -328,7 +329,14 @@ export function PageLayout({
   } = useUiStore();
 
   // Create local handlers from store actions
-  const onNavigate = (view: string) => navigate('/' + view);
+  const onNavigate = (view: string) => {
+    // Close non-persistent sidebars BEFORE navigation (synchronously)
+    // AI assistant stays open, everything else closes
+    if (sidebarType !== 'none' && sidebarType !== 'ai-assistant') {
+      setSidebarType('none');
+    }
+    navigate('/' + view);
+  };
   const onSidebarStateChange = (type: any) => setSidebarType(type);
   const onWorkplaceExpandedChange = (expanded: boolean) => {
     // Toggle only works, but we need to check current state

@@ -5,58 +5,58 @@
 // to prevent duplication and ensure consistency.
 
 // Navigation Types
-export type View = 
-  | 'dashboard' 
-  | 'tickets' 
-  | 'map' 
-  | 'meeting-spaces' 
-  | 'my-schedule' 
-  | 'space-planning' 
-  | 'people' 
-  | 'analytics' 
-  | 'settings' 
-  | 'daily-roster' 
-  | 'meeting-services' 
-  | 'space-requests' 
-  | 'issue-reports' 
-  | 'announcements' 
-  | 'visitors' 
-  | 'deliveries' 
-  | 'surveys' 
-  | 'devices' 
-  | 'calendars' 
-  | 'user-profile' 
-  | 'support' 
-  | 'feedback' 
-  | 'notifications' 
-  | 'settings-organization' 
-  | 'settings-offices' 
-  | 'settings-themes' 
-  | 'settings-integrations' 
-  | 'settings-people' 
-  | 'settings-groups' 
-  | 'settings-roles' 
-  | 'settings-calendars' 
-  | 'settings-event-audit-logs' 
-  | 'settings-hybrid-work-policies' 
-  | 'settings-access' 
-  | 'settings-daily-roster' 
-  | 'settings-announcements' 
-  | 'settings-surveys' 
-  | 'settings-devices' 
-  | 'settings-amenities' 
-  | 'settings-stickers' 
-  | 'settings-workplace-services' 
-  | 'settings-notifications' 
-  | 'settings-billing' 
+export type View =
+  | 'dashboard'
+  | 'tickets'
+  | 'map'
+  | 'meeting-spaces'
+  | 'my-schedule'
+  | 'space-planning'
+  | 'people'
+  | 'analytics'
+  | 'settings'
+  | 'daily-roster'
+  | 'meeting-services'
+  | 'space-requests'
+  | 'issue-reports'
+  | 'announcements'
+  | 'visitors'
+  | 'deliveries'
+  | 'surveys'
+  | 'devices'
+  | 'calendars'
+  | 'user-profile'
+  | 'support'
+  | 'feedback'
+  | 'notifications'
+  | 'settings-organization'
+  | 'settings-offices'
+  | 'settings-themes'
+  | 'settings-integrations'
+  | 'settings-people'
+  | 'settings-groups'
+  | 'settings-roles'
+  | 'settings-calendars'
+  | 'settings-event-audit-logs'
+  | 'settings-hybrid-work-policies'
+  | 'settings-access'
+  | 'settings-daily-roster'
+  | 'settings-announcements'
+  | 'settings-surveys'
+  | 'settings-devices'
+  | 'settings-amenities'
+  | 'settings-stickers'
+  | 'settings-workplace-services'
+  | 'settings-notifications'
+  | 'settings-billing'
   | 'settings-priority-support';
 
-export type SidebarType = 
-  | 'none' 
-  | 'ai-assistant' 
-  | 'meeting-details' 
-  | 'create-meeting' 
-  | 'filters' 
+export type SidebarType =
+  | 'none'
+  | 'ai-assistant'
+  | 'meeting-details'
+  | 'create-meeting'
+  | 'filters'
   | 'room-details'
   | 'service-ticket';
 
@@ -136,17 +136,17 @@ export interface Message {
   thinkingComplete?: boolean;
   thinkingVisibleLines?: number;
   thinkingRoomData?: {
-    goodFitRooms: Array<{ 
-      id: string; 
-      name: string; 
-      capacity: number; 
+    goodFitRooms: Array<{
+      id: string;
+      name: string;
+      capacity: number;
       attendees: number;
     }>;
-    poorFitRooms: Array<{ 
-      id: string; 
-      name: string; 
-      capacity: number; 
-      attendees: number; 
+    poorFitRooms: Array<{
+      id: string;
+      name: string;
+      capacity: number;
+      attendees: number;
       reason: string;
     }>;
   };
@@ -210,6 +210,8 @@ export interface RoomSuggestion {
   roomCapacity: number;
   roomFloor: number;
   score: number;
+  roomFeatures: string[]; // Added missing property
+  floor: number;          // Added missing property (duplicate of roomFloor but used in component)
 }
 
 // Attendee Type

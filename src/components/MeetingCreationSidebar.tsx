@@ -18,7 +18,7 @@ interface MeetingCreationSidebarProps {
   showCloseButton?: boolean;
   onMeetingPreviewUpdate?: (updatedFields: Partial<{
     startTime: number;
-    duration: number; 
+    duration: number;
     title: string;
     roomIds: string[];
   }>) => void;
@@ -43,10 +43,10 @@ export function MeetingCreationSidebar({
     id: 'new',
     title: meetingCreationContext.title || '',
     organizer: 'You',
-    startTime: meetingCreationContext.startTime,
+    startTime: meetingCreationContext.startTime || 9, // Default to 9 AM
     duration: meetingCreationContext.duration || 0.5,
     attendees: meetingCreationContext.attendees || 1,
-    rooms: [meetingCreationContext.roomId]
+    rooms: [meetingCreationContext.roomId || ''] // Handle missing roomId too
   };
 
   const currentRoom = allRooms.find(room => room.id === meetingCreationContext.roomId) || allRooms[0];
@@ -79,7 +79,7 @@ export function MeetingCreationSidebar({
           </Button>
         )}
       </div>
-      
+
       {/* Body Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4">
@@ -97,7 +97,7 @@ export function MeetingCreationSidebar({
           />
         </div>
       </div>
-      
+
       {/* Footer with Action Buttons */}
       <div className="p-4 border-t border-gray-200 flex-shrink-0 bg-white">
         <div className="flex space-x-3">

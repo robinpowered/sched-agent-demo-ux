@@ -75,6 +75,12 @@ export function RoomBookingSuggestions({
     const findRoomSuggestions = () => {
       const { attendees, startTime, duration, features } = meetingRequirements;
 
+      // Ensure rooms is an array before filtering
+      if (!Array.isArray(rooms)) {
+        console.error('RoomBookingSuggestions: rooms prop is not an array', rooms);
+        return;
+      }
+
       const availableRooms = rooms
         .filter(room => {
           // Must be available

@@ -38,6 +38,15 @@ export default function App() {
     }
   }, [location, setCurrentView, currentView]);
 
+  // Clear page-specific state when navigating to prevent empty sidebars
+  useEffect(() => {
+    // Clear meeting and room details when leaving meeting-spaces page
+    if (!location.pathname.includes('meeting-spaces')) {
+      setSelectedMeetingDetails(null);
+      setSelectedRoomDetails(null);
+    }
+  }, [location.pathname]);
+
   // Chat Store
   const {
     messages: aiAssistantMessages,
@@ -56,6 +65,7 @@ export default function App() {
   // Meeting Store
   const {
     rooms,
+    allRooms,
     setRooms,
     filters: activeFilters,
     updateFilters: setActiveFilters, // App.tsx uses setActiveFilters({...}). Store uses updateFilters(partial). Compatible.
@@ -116,6 +126,10 @@ export default function App() {
   const [meetingCreationContext, setMeetingCreationContext] = useState<{
     startTime?: number;
     roomId?: string;
+    title?: string;
+    duration?: number;
+    attendees?: number;
+    fromAiSuggestion?: boolean;
   } | null>(null);
 
   // Room details state - for room details sidebar
@@ -202,7 +216,7 @@ export default function App() {
 
   // Function to delete a meeting from the rooms data
   const handleDeleteMeeting = (meetingId: string) => {
-    const newRooms = rooms.map(room => ({
+    const newRooms = allRooms.map(room => ({
       ...room,
       meetings: room.meetings.filter(meeting => meeting.id !== meetingId)
     }));
@@ -212,7 +226,7 @@ export default function App() {
   // Function to edit a meeting and potentially move it to different rooms
   const handleEditMeeting = (updatedMeeting: Meeting, selectedRooms: string[]) => {
     // First, remove the meeting from all rooms
-    const roomsWithoutMeeting = rooms.map(room => ({
+    const roomsWithoutMeeting = allRooms.map(room => ({
       ...room,
       meetings: room.meetings.filter(meeting => meeting.id !== updatedMeeting.id)
     }));
@@ -276,7 +290,7 @@ export default function App() {
     };
 
     // Add the meeting to the selected rooms
-    const newRooms = rooms.map(room => {
+    const newRooms = allRooms.map(room => {
       if (selectedRooms.includes(room.id)) {
         return {
           ...room,
@@ -378,7 +392,7 @@ export default function App() {
 
   // Function to toggle room offline status
   const handleToggleRoomOffline = (roomId: string, isOffline: boolean) => {
-    const newRooms = rooms.map(room => {
+    const newRooms = allRooms.map(room => {
       if (room.id === roomId) {
         return {
           ...room,
@@ -505,17 +519,16 @@ export default function App() {
       }
 
       // Add the meeting to the selected room
-      setRooms(prevRooms =>
-        prevRooms.map(room => {
-          if (room.id === roomId) {
-            return {
-              ...room,
-              meetings: [...room.meetings, newMeeting]
-            };
-          }
-          return room;
-        })
-      );
+      const newRooms = allRooms.map(room => {
+        if (room.id === roomId) {
+          return {
+            ...room,
+            meetings: [...room.meetings, newMeeting]
+          };
+        }
+        return room;
+      });
+      setRooms(newRooms);
 
       // Start syncing state for this meeting
       setSyncingMeetings(prev => new Set(prev).add(meetingId));
