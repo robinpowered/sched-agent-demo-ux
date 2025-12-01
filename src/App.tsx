@@ -76,8 +76,7 @@ export default function App() {
     selectedMonthViewRoom,
     setSelectedMonthViewRoom,
     pinnedRoomIds,
-    setPinnedRoomIds, // App.tsx uses setPinnedRoomIds(ids). Store uses toggle. Not compatible.
-    // I need to check usage of setPinnedRoomIds.
+    togglePinnedRoom,
     selectedTimezones,
     setSelectedTimezones,
     compactView,
@@ -1128,7 +1127,7 @@ export default function App() {
             onCloseServiceTicket={handleCloseServiceTicket}
             onBackFromServiceTicket={handleBackFromServiceTicket}
             pinnedRoomIds={pinnedRoomIds}
-            onTogglePin={setPinnedRoomIds}
+            onTogglePin={togglePinnedRoom}
             timeWindowStart={timeWindowStart}
             onTimeWindowPrevious={handleTimeWindowPrevious}
             onTimeWindowNext={handleTimeWindowNext}

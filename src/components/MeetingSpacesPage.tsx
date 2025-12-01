@@ -605,7 +605,7 @@ function WeekView({
   // Group rooms by floor, excluding pinned rooms from their normal positions
   const groupedRooms = rooms.reduce((acc, room) => {
     // Skip pinned rooms - they only appear in the Pinned Spaces section
-    if (pinnedRoomIds.includes(room.id)) {
+    if (normalizedPinnedRoomIds.includes(room.id)) {
       return acc;
     }
 
@@ -636,7 +636,7 @@ function WeekView({
   };
 
   const RoomRow = ({ room }: { room: Room }) => {
-    const isPinned = pinnedRoomIds.includes(room.id);
+    const isPinned = normalizedPinnedRoomIds.includes(room.id);
     const isRestricted = isRoomRestricted(room);
     const isOffline = room.status === 'offline';
     const [isHovered, setIsHovered] = React.useState(false);
@@ -811,7 +811,7 @@ function WeekView({
       {/* Scrolling Content */}
       <div className="flex-1 overflow-auto scrollbar-overlay bg-white">
         {/* Pinned Spaces Section */}
-        {pinnedRoomIds.length > 0 && (
+        {normalizedPinnedRoomIds.length > 0 && (
           <div>
             {/* Pinned Spaces Header - Two column layout */}
             <div className="flex">
@@ -834,7 +834,7 @@ function WeekView({
             {/* Pinned Rooms */}
             {isPinnedExpanded && (
               <div>
-                {pinnedRoomIds.map(roomId => {
+                {normalizedPinnedRoomIds.map(roomId => {
                   const room = rooms.find(r => r.id === roomId);
                   if (!room) return null;
                   return <RoomRow key={room.id} room={room} />;
@@ -963,6 +963,9 @@ export function MeetingSpacesPage({
   // Note: PageLayout now handles currentView, onNavigate, isWorkplaceExpanded, 
   // onWorkplaceExpandedChange, isNavCollapsed, onNavCollapsedChange, sidebarType,
   // and onSidebarStateChange via stores internally
+
+  // Ensure pinnedRoomIds is always an array
+  const normalizedPinnedRoomIds = Array.isArray(pinnedRoomIds) ? pinnedRoomIds : [];
 
   const [expandedFloors, setExpandedFloors] = useState<Set<number>>(new Set([1, 2, 3]));
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
@@ -2034,7 +2037,7 @@ export function MeetingSpacesPage({
   // Group rooms by floor, excluding pinned rooms from their normal positions
   const groupedRooms = updatedRooms.reduce((acc, room) => {
     // Skip pinned rooms - they only appear in the Pinned Spaces section
-    if (pinnedRoomIds.includes(room.id)) {
+    if (normalizedPinnedRoomIds.includes(room.id)) {
       return acc;
     }
 
@@ -2116,7 +2119,7 @@ export function MeetingSpacesPage({
         <WeekView
           rooms={updatedRooms}
           onOpenMeetingDetails={handleMeetingClick}
-          pinnedRoomIds={pinnedRoomIds}
+          pinnedRoomIds={normalizedPinnedRoomIds}
           onTogglePin={onTogglePin || (() => { })}
           onOpenRoomDetails={onOpenRoomDetails || (() => { })}
           compactView={compactView}
@@ -2268,7 +2271,7 @@ export function MeetingSpacesPage({
             <div className="w-60 max-[600px]:w-32 bg-gray-50 flex-shrink-0 relative z-10">
               <div className="p-[0px]">
                 {/* Pinned Spaces Section */}
-                {pinnedRoomIds.length > 0 && (
+                {normalizedPinnedRoomIds.length > 0 && (
                   <div>
                     {/* Pinned Spaces Header */}
                     <button
@@ -2288,7 +2291,7 @@ export function MeetingSpacesPage({
                     {/* Pinned Rooms List */}
                     {isPinnedExpanded && (
                       <div>
-                        {pinnedRoomIds.map(roomId => {
+                        {normalizedPinnedRoomIds.map(roomId => {
                           const room = updatedRooms.find(r => r.id === roomId);
                           if (!room) return null;
 
@@ -2400,7 +2403,7 @@ export function MeetingSpacesPage({
                       <div>
                         {groupedRooms[floor].map(room => {
                           const roomHasInsufficientCapacity = hasInsufficientCapacity(room);
-                          const isPinned = pinnedRoomIds.includes(room.id);
+                          const isPinned = normalizedPinnedRoomIds.includes(room.id);
                           const hasExcessCapacity = draggedMeeting &&
                             (room.capacity - draggedMeeting.meeting.attendees) > 4;
                           const isRequestOnlyRoom = room.requestOnly === true;
@@ -2529,7 +2532,7 @@ export function MeetingSpacesPage({
                 )}
                 <div className="min-h-full">
                   {/* Pinned Spaces Grid Section */}
-                  {pinnedRoomIds.length > 0 && (
+                  {normalizedPinnedRoomIds.length > 0 && (
                     <React.Fragment>
                       {/* Pinned Spaces Header Row */}
                       <div className="bg-gray-100 border-b border-[#D6D6D6] p-[0px] h-10"></div>
