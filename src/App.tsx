@@ -922,11 +922,11 @@ export default function App() {
 
   // Handlers for time navigation - cycles through three windows
   const handleTimeWindowPrevious = () => {
-    setTimeWindowStart((prev) => getPreviousTimeWindow(prev));
+    setTimeWindowStart(getPreviousTimeWindow(timeWindowStart));
   };
 
   const handleTimeWindowNext = () => {
-    setTimeWindowStart((prev) => getNextTimeWindow(prev));
+    setTimeWindowStart(getNextTimeWindow(timeWindowStart));
   };
 
   const handleTimeWindowNow = () => {
