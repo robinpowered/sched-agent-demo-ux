@@ -476,6 +476,9 @@ function WeekView({
   compactView: boolean;
   selectedTimezones: string[];
 }) {
+  // Ensure pinnedRoomIds is always an array
+  const normalizedPinnedRoomIds = Array.isArray(pinnedRoomIds) ? pinnedRoomIds : [];
+  
   const [expandedFloors, setExpandedFloors] = useState<Set<number>>(new Set([1, 2, 3]));
   const [currentTime, setCurrentTime] = useState(new Date());
 
