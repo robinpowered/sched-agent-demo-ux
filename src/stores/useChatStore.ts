@@ -8,7 +8,7 @@ interface ChatState {
   isThinking: boolean;
 
   // Actions
-  setMessages: (messages: Message[]) => void;
+  setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
   addMessage: (message: Message) => void;
   setChatHistory: (history: ChatSession[]) => void;
   startNewChat: () => void;
@@ -24,8 +24,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   currentChatId: null,
   isThinking: false,
 
-  setMessages: (messages) =>
-    set({ messages: Array.isArray(messages) ? messages : [] }),
+  setMessages: (messages) => {
+    if (typeof messages === "function") {
+      set((state) => ({ messages: messages(state.messages) }));
+    } else {
+      set({ messages: Array.isArray(messages) ? messages : [] });
+    }
+  },
 
   addMessage: (message) =>
     set((state) => ({

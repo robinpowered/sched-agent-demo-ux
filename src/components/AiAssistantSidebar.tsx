@@ -260,6 +260,8 @@ export function AiAssistantSidebar({
     normalizedExistingMessages
   );
   const [inputValue, setInputValue] = useState("");
+  // Use a ref to track if chat has started - this persists across renders and prevents flashing
+  const hasStartedChatRef = React.useRef(normalizedExistingMessages.length > 0);
   const [hasStartedChat, setHasStartedChat] = useState(
     normalizedExistingMessages.length > 0
   );
@@ -329,8 +331,20 @@ export function AiAssistantSidebar({
       ? existingMessages
       : [];
 
+    // Always update messages from prop (this is the source of truth)
     setMessages(messagesArray);
-    setHasStartedChat(messagesArray.length > 0);
+    
+    // Update hasStartedChat: once started, it stays started (prevents welcome screen flashing)
+    if (messagesArray.length > 0) {
+      // If there are messages, ensure chat is marked as started
+      hasStartedChatRef.current = true;
+      if (!hasStartedChat) {
+        setHasStartedChat(true);
+      }
+    }
+    // Note: We don't reset hasStartedChatRef when messages are empty
+    // It only resets in handleResetChat when explicitly clearing the chat
+    // This prevents the welcome screen from flashing during message updates
 
     // Initialize thinking progress for any thinking messages that already exist
     // This ensures completed thinking states are preserved when reopening the sidebar
@@ -634,6 +648,7 @@ export function AiAssistantSidebar({
       onStartNewChat();
     } else {
       setMessages([]);
+      hasStartedChatRef.current = false;
       setHasStartedChat(false);
       setInputValue("");
       onMessagesUpdate?.([]);
@@ -751,6 +766,7 @@ export function AiAssistantSidebar({
     const newMessages = [...updatedMessages, selectionMessage];
     setMessages(newMessages);
     setInputValue("");
+    hasStartedChatRef.current = true;
     setHasStartedChat(true);
 
     // Trigger the catering items request flow
@@ -1197,6 +1213,7 @@ export function AiAssistantSidebar({
     const updatedMessages = [...messages, newUserMessage];
 
     setInputValue("");
+    hasStartedChatRef.current = true;
     setHasStartedChat(true);
 
     // Enable full height for the new turn
@@ -2770,7 +2787,7 @@ Checking room availability
         </div>
       </div>
 
-      {!hasStartedChat ? (
+      {messages.length === 0 && !hasStartedChatRef.current ? (
         /* Intro Mode */
         <>
           {/* Welcome Content */}

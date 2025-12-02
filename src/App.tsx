@@ -679,74 +679,87 @@ export default function App() {
 
   // Handle meeting selection for catering
   const handleMeetingSelectedForCatering = (meeting: Meeting, room: Room) => {
-    // Only process if we're actually waiting for catering meeting selection
-    const hasEzCaterAgent = aiAssistantMessages.some(
-      (msg) => msg.agentType === "ezcater"
-    );
-    if (!hasEzCaterAgent) return;
+    // Use functional form to get current messages and check condition
+    setAiAssistantMessages((prevMessages) => {
+      // Only process if we're actually waiting for catering meeting selection
+      const hasEzCaterAgent = prevMessages.some(
+        (msg) => msg.agentType === "ezcater"
+      );
+      if (!hasEzCaterAgent) return prevMessages;
 
-    const startTimeStr = formatTimeFloat(meeting.startTime);
+      const startTimeStr = formatTimeFloat(meeting.startTime);
 
-    // Remove the meeting list widget but keep the message
-    const updatedMessages = aiAssistantMessages.map((msg) => {
-      if (msg.showMeetingListWidget) {
-        return {
-          ...msg,
-          showMeetingListWidget: false,
-        };
-      }
-      return msg;
-    });
+      // Remove the meeting list widget but keep the message
+      const updatedMessages = prevMessages.map((msg) => {
+        if (msg.showMeetingListWidget) {
+          return {
+            ...msg,
+            showMeetingListWidget: false,
+          };
+        }
+        return msg;
+      });
 
-    // Create user message with meeting details
-    const timestamp = Date.now();
-    const userMessage: Message = {
-      id: `user-${timestamp}`,
-      content: `I'd like to add catering to "${meeting.title}" at ${startTimeStr} in ${room.name} for ${meeting.attendees} attendees.`,
-      sender: "user",
-    };
-
-    // Update catering order with meeting details
-    setCateringOrderDetails({
-      meeting: {
-        title: meeting.title,
-        location: room.name,
-        time: startTimeStr,
-        attendees: meeting.attendees,
-      },
-      items: [],
-      totalCost: 0,
-    });
-
-    // Add user message to conversation (with widget removed)
-    setAiAssistantMessages([...updatedMessages, userMessage]);
-
-    // Generate AI response
-    setTimeout(() => {
-      // Add assistant response
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: `Perfect! I've noted that you want catering for "${meeting.title}" at ${startTimeStr} in ${room.name} for ${meeting.attendees} attendees. What would you like to order? I can help you browse menus from local restaurants and caterers.`,
-        timestamp: new Date().toISOString(),
+      // Create user message with meeting details
+      const timestamp = Date.now();
+      const userMessage: Message = {
+        id: `user-${timestamp}`,
+        content: `I'd like to add catering to "${meeting.title}" at ${startTimeStr} in ${room.name} for ${meeting.attendees} attendees.`,
+        sender: "user",
       };
 
-      addMessage(assistantMessage);
+      // Update catering order with meeting details
+      setCateringOrderDetails({
+        meeting: {
+          title: meeting.title,
+          location: room.name,
+          time: startTimeStr,
+          attendees: meeting.attendees,
+        },
+        items: [],
+        totalCost: 0,
+      });
 
-      // Show cuisine options AFTER typing animation completes
-      // Message: ~220 chars (varies with meeting details)
-      // Animation time: 2000ms bouncing + 220 chars * 20ms + 100ms cleanup = 6500ms
-      // Add 500ms buffer to ensure typing is completely finished before card appears
+      // Add user message
+      const messagesWithUser = [...updatedMessages, userMessage];
+
+      // Generate AI response after a delay
       setTimeout(() => {
-        setAiAssistantMessages((prevMessages) =>
-          prevMessages.map((m) =>
-            m.id === `ai-${timestamp + 1}`
-              ? { ...m, showCuisineOptions: true }
-              : m
-          )
-        );
-      }, 7000);
-    }, 1000);
+        // Add assistant response with typing animation
+        setAiAssistantMessages((currentMessages) => {
+          // Ensure we're working with the latest messages that include the user message
+          const assistantMessageId = `ai-${timestamp + 1}`;
+          const assistantMessage: Message = {
+            id: assistantMessageId,
+            sender: "assistant",
+            content: `Perfect! I've noted that you want catering for "${meeting.title}" at ${startTimeStr} in ${room.name} for ${meeting.attendees} attendees. What would you like to order? I can help you browse menus from local restaurants and caterers.`,
+            isTyping: true,
+            agentType: "ezcater",
+            showCuisineOptions: false, // Don't show card yet
+          };
+
+          const messagesWithAssistant = [...currentMessages, assistantMessage];
+
+          // Show cuisine options AFTER typing animation completes
+          // Message: ~220 chars (varies with meeting details)
+          // Animation time: 2000ms bouncing + 220 chars * 20ms + 100ms cleanup = 6500ms
+          // Add 500ms buffer to ensure typing is completely finished before card appears
+          setTimeout(() => {
+            setAiAssistantMessages((finalMessages) =>
+              finalMessages.map((m) =>
+                m.id === assistantMessageId
+                  ? { ...m, isTyping: false, showCuisineOptions: true }
+                  : m
+              )
+            );
+          }, 7000);
+
+          return messagesWithAssistant;
+        });
+      }, 1000);
+
+      return messagesWithUser;
+    });
 
     // Clear waiting state
     setIsWaitingForMeetingSelection(false);
