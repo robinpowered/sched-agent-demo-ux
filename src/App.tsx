@@ -1,11 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import {
-  Routes,
-  Route,
-  Navigate,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { PageLayout } from "./components/PageLayout";
 import { MeetingSpacesPage } from "./components/MeetingSpacesPage";
 import { Toaster } from "./components/ui/sonner";
@@ -51,7 +45,6 @@ import { useChatStore } from "./stores/useChatStore";
 import { useServiceStore } from "./stores/useServiceStore";
 
 export default function App() {
-  const navigate = useNavigate();
   const location = useLocation();
 
   // UI Store
@@ -82,13 +75,11 @@ export default function App() {
   // Chat Store
   const {
     messages: aiAssistantMessages,
-    addMessage,
     setMessages: setAiAssistantMessages,
     chatHistory,
     setChatHistory,
     currentChatId,
     setCurrentChatId,
-    createNewChat,
   } = useChatStore();
 
   // Ensure chatHistory is always an array
@@ -137,8 +128,6 @@ export default function App() {
       items: [],
       totalCost: 0,
     });
-  const [isWaitingForMeetingSelection, setIsWaitingForMeetingSelection] =
-    useState(false);
   const [cateringOrderSubmitted, setCateringOrderSubmitted] = useState(false);
   const [cateringTicketNumber, setCateringTicketNumber] = useState<
     string | null
@@ -203,7 +192,6 @@ export default function App() {
   } | null>(null);
 
   // Track which chat the preview belongs to
-  const [previewChatId, setPreviewChatId] = useState<string | null>(null);
 
   // Room highlighting state for AI assistant
   const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(
@@ -214,10 +202,8 @@ export default function App() {
   const [syncingMeetings, setSyncingMeetings] = useState<string[]>([]);
 
   // Timestamp state for forcing re-renders when time changes (for filter updates)
-  const [currentTimeStamp, setCurrentTimeStamp] = React.useState(Date.now());
 
   // --- Handlers ---
-  // Note: performNavigation and handleNavigate definitions moved below (lines 983 and 956)
   const [notifications, setNotifications] = useState<any[]>([
     {
       id: "welcome-1",
@@ -372,7 +358,6 @@ export default function App() {
     if (meetingCreationContext?.fromAiSuggestion) {
       setAiMeetingPreview(null);
       setHighlightedRoomId(null);
-      setPreviewChatId(null);
     }
 
     // Show success toast for all new meetings
@@ -515,13 +500,6 @@ export default function App() {
       } | null
     ) => {
       setAiMeetingPreview(preview);
-
-      // Track which chat this preview belongs to
-      if (preview && currentChatId) {
-        setPreviewChatId(currentChatId);
-      } else if (!preview) {
-        setPreviewChatId(null);
-      }
     },
     [currentChatId]
   );
@@ -638,7 +616,6 @@ export default function App() {
 
       // Clear AI preview immediately
       setAiMeetingPreview(null);
-      setPreviewChatId(null);
       if (handleHighlightRoom) {
         handleHighlightRoom(null);
       }
@@ -760,9 +737,6 @@ export default function App() {
 
       return messagesWithUser;
     });
-
-    // Clear waiting state
-    setIsWaitingForMeetingSelection(false);
   };
 
   // Handler to navigate to previous offline meeting
@@ -949,11 +923,6 @@ export default function App() {
 
   // Auto check-in meetings when current time passes their start time
   React.useEffect(() => {
-    const now = new Date();
-
-    // Update timestamp to force re-render for filters
-    setCurrentTimeStamp(Date.now());
-
     // Check in meetings based on current time (real or demo)
     // Use store action
     autoCheckIn();
@@ -961,9 +930,6 @@ export default function App() {
     // Set up interval only when NOT in demo mode
     if (demoTimeOverride === null) {
       const checkInInterval = setInterval(() => {
-        // Update timestamp to force re-render for filters
-        setCurrentTimeStamp(Date.now());
-
         // Use store action
         autoCheckIn();
       }, 60000); // Check every minute
@@ -1079,7 +1045,6 @@ export default function App() {
     // Clear current preview first
     setAiMeetingPreview(null);
     setHighlightedRoomId(null);
-    setPreviewChatId(null);
 
     // Check if this chat has active room suggestions and restore preview
     const lastMessageWithSuggestions = [...chatSession.messages]
@@ -1087,8 +1052,6 @@ export default function App() {
       .find((msg) => msg.showRoomSuggestions && msg.meetingRequirements);
 
     if (lastMessageWithSuggestions?.meetingRequirements) {
-      // Restore the preview for this chat using the new chat ID
-      setPreviewChatId(newChatId);
       // The preview will be set by the RoomBookingSuggestions component when it renders
     }
   };
@@ -1120,7 +1083,6 @@ export default function App() {
     // Clear preview when starting new chat
     setAiMeetingPreview(null);
     setHighlightedRoomId(null);
-    setPreviewChatId(null);
   };
 
   const handleAiAssistantMessagesUpdate = (messages: Message[]) => {
@@ -1138,31 +1100,6 @@ export default function App() {
   };
 
   // Handler for navigation
-  const handleNavigate = (view: View) => {
-    // If we have a pending move and we're navigating away, show warning
-    if (hasPendingMove && view !== currentView) {
-      setPendingNavigation(view);
-      setShowNavigationWarning(true);
-      return;
-    }
-
-    setCurrentView(view);
-
-    // Close sidebar on navigation unless it's a persistent one like AI assistant
-    if (sidebarState !== "ai-assistant") {
-      setSidebarState("none");
-    }
-  };
-
-  // Handler for sidebar state changes
-  const handleSidebarStateChange = (type: SidebarType) => {
-    setSidebarState(type);
-
-    // If opening AI assistant, ensure we have a chat session
-    if (type === "ai-assistant" && !currentChatId) {
-      createNewChat();
-    }
-  };
 
   const performNavigation = (view: View) => {
     setCurrentView(view);
