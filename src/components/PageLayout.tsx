@@ -106,6 +106,7 @@ interface PageLayoutProps {
   aiAssistantMessages?: Message[];
   onAiAssistantMessagesUpdate?: (messages: Message[]) => void;
   chatHistory?: ChatSession[];
+  currentChatId?: string | null;
   onLoadChatFromHistory?: (chatSession: ChatSession) => void;
   onStartNewChat?: () => void;
   sidebarContent?: React.ReactNode;
@@ -267,6 +268,7 @@ export function PageLayout({
   aiAssistantMessages = [],
   onAiAssistantMessagesUpdate,
   chatHistory = [],
+  currentChatId = null,
   onLoadChatFromHistory,
   onStartNewChat,
   sidebarContent,
@@ -4224,6 +4226,7 @@ export function PageLayout({
               existingMessages={aiAssistantMessages}
               onMessagesUpdate={onAiAssistantMessagesUpdate}
               chatHistory={chatHistory}
+              currentChatId={currentChatId}
               onLoadChatFromHistory={onLoadChatFromHistory}
               onStartNewChat={onStartNewChat}
               showBackButton={showBackButton}

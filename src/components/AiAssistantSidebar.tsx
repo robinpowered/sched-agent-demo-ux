@@ -5,6 +5,7 @@ import {
   faMagicWandSparkles,
   faArrowLeft,
   faRotateRight,
+  faPlus,
   faBars,
   faChevronDown,
   faChevronRight,
@@ -66,6 +67,7 @@ interface AiAssistantSidebarProps {
   showCloseButton?: boolean;
   isEmbedded?: boolean;
   chatHistory?: ChatSession[];
+  currentChatId?: string | null;
   onLoadChatFromHistory?: (chatSession: ChatSession) => void;
   onStartNewChat?: () => void;
   rooms?: Room[];
@@ -230,6 +232,7 @@ export function AiAssistantSidebar({
   showCloseButton = true,
   isEmbedded = false,
   chatHistory = [],
+  currentChatId = null,
   onLoadChatFromHistory,
   onStartNewChat,
   rooms = [],
@@ -265,6 +268,10 @@ export function AiAssistantSidebar({
   const [hasStartedChat, setHasStartedChat] = useState(
     normalizedExistingMessages.length > 0
   );
+  // Track previous message count to detect when chat is explicitly cleared
+  const prevMessageCountRef = React.useRef(normalizedExistingMessages.length);
+  // Track previous message IDs to detect if we're loading from history (all messages are "old")
+  const prevMessageIdsRef = React.useRef<Set<string>>(new Set(normalizedExistingMessages.map(m => m.id)));
   const [showChatHistory, setShowChatHistory] = useState(false);
   const [shouldAutoPopulateInput, setShouldAutoPopulateInput] = useState("");
   const [expandedThinking, setExpandedThinking] = useState<Set<string>>(
@@ -331,24 +338,85 @@ export function AiAssistantSidebar({
       ? existingMessages
       : [];
 
-    // Always update messages from prop (this is the source of truth)
-    setMessages(messagesArray);
+    // Detect if chat is being explicitly cleared (going from non-empty to empty)
+    const wasNonEmpty = prevMessageCountRef.current > 0;
+    const isNowEmpty = messagesArray.length === 0;
+    const isExplicitlyCleared = wasNonEmpty && isNowEmpty;
+
+    // Detect if we're loading from history (all message IDs are "old" - already seen before)
+    const currentMessageIds = new Set(messagesArray.map(m => m.id));
+    const isLoadingFromHistory = messagesArray.length > 0 && 
+      messagesArray.every(msg => prevMessageIdsRef.current.has(msg.id));
     
-    // Update hasStartedChat: once started, it stays started (prevents welcome screen flashing)
-    if (messagesArray.length > 0) {
+    // Clean up typing state from messages loaded from history ONLY
+    // Don't clean new messages that are actively being typed
+    const cleanedMessages = messagesArray.map((message) => {
+      // Only clean up if this is a load from history AND the message has typing state
+      if (isLoadingFromHistory && message.sender === "assistant" && 
+          (message.isTyping || message.typedContent !== undefined)) {
+        // Remove typing state - these messages are already complete
+        const { isTyping, typedContent, ...rest } = message;
+        return rest;
+      }
+      return message;
+    });
+    
+    // Mark completed typing messages as initialized AND complete BEFORE setting messages
+    // Only do this for messages loaded from history, not for new messages being added
+    if (isLoadingFromHistory) {
+      cleanedMessages.forEach((message) => {
+        if (message.sender === "assistant") {
+          // Mark all assistant messages as initialized and complete
+          // This prevents re-animation when loading from history
+          initializedTypingMessages.current.add(message.id);
+          completedTypingMessages.current.add(message.id);
+        }
+      });
+    } else {
+      // For new messages, only mark non-typing messages as complete
+      cleanedMessages.forEach((message) => {
+        if (message.sender === "assistant" && !message.isTyping) {
+          // Only mark messages that are not currently typing as complete
+          // This allows new typing messages to animate properly
+          if (!initializedTypingMessages.current.has(message.id)) {
+            // Don't mark as initialized if it's a new typing message
+            completedTypingMessages.current.add(message.id);
+          }
+        }
+      });
+    }
+    
+    // Update the previous message IDs ref
+    prevMessageIdsRef.current = currentMessageIds;
+    
+    // Always update messages from prop (this is the source of truth)
+    // Use cleaned messages to ensure no typing state triggers re-animation
+    setMessages(cleanedMessages);
+    
+    // Update hasStartedChat
+    if (cleanedMessages.length > 0) {
       // If there are messages, ensure chat is marked as started
       hasStartedChatRef.current = true;
       if (!hasStartedChat) {
         setHasStartedChat(true);
       }
+    } else if (isExplicitlyCleared) {
+      // If messages were explicitly cleared (went from non-empty to empty), reset to show welcome screen
+      hasStartedChatRef.current = false;
+      if (hasStartedChat) {
+        setHasStartedChat(false);
+      }
     }
-    // Note: We don't reset hasStartedChatRef when messages are empty
-    // It only resets in handleResetChat when explicitly clearing the chat
+    // Note: We don't reset hasStartedChatRef when messages are temporarily empty during updates
     // This prevents the welcome screen from flashing during message updates
+    // But we DO reset it when explicitly cleared (like starting a new chat)
+
+    // Update previous message count for next comparison
+    prevMessageCountRef.current = cleanedMessages.length;
 
     // Initialize thinking progress for any thinking messages that already exist
     // This ensures completed thinking states are preserved when reopening the sidebar
-    const thinkingMessages = messagesArray.filter(
+    const thinkingMessages = cleanedMessages.filter(
       (m) => m.isThinking && m.thinkingText
     );
     const newThinkingProgress: Record<
@@ -380,15 +448,6 @@ export function AiAssistantSidebar({
     if (Object.keys(newThinkingProgress).length > 0) {
       setThinkingProgress(newThinkingProgress);
     }
-
-    // Mark completed typing messages as initialized AND complete so they don't re-animate
-    // Messages that don't have isTyping: true are considered complete
-    messagesArray.forEach((message) => {
-      if (message.sender === "assistant" && !message.isTyping) {
-        initializedTypingMessages.current.add(message.id);
-        completedTypingMessages.current.add(message.id);
-      }
-    });
   }, [existingMessages]);
 
   // Auto-focus input when sidebar opens or when chat starts
@@ -679,9 +738,8 @@ export function AiAssistantSidebar({
 
   // Determine if we should show the history button
   // Show if: at least one chat in history AND user has started a second chat (either current has messages OR there are multiple in history)
-  const shouldShowHistoryButton =
-    normalizedChatHistory.length > 0 &&
-    (hasStartedChat || normalizedChatHistory.length > 1);
+  // Always show history button - even if there's only a current chat
+  const shouldShowHistoryButton = true;
 
   // Handler for confirming menu order
   const handleConfirmMenuOrder = (
@@ -2634,34 +2692,135 @@ Checking room availability
         {/* Chat History List */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 space-y-3">
-            {normalizedChatHistory.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No previous chats</p>
-              </div>
-            ) : (
-              normalizedChatHistory.map((chat) => (
-                <button
-                  key={chat.id}
-                  onClick={() => handleLoadChat(chat)}
-                  className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex flex-col space-y-1">
-                    <p className="font-medium text-sm text-gray-900 line-clamp-2">
-                      {chat.title}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-500">
-                        {chat.messages.length} message
-                        {chat.messages.length !== 1 ? "s" : ""}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatRelativeTime(chat.updatedAt)}
-                      </p>
-                    </div>
+            {/* Build combined list: current chat + history, with current chat first */}
+            {(() => {
+              // Check if current chat is already in history (by ID)
+              // This is the most reliable check - if the ID matches, it's definitely the same chat
+              const currentChatInHistory = currentChatId && normalizedChatHistory.some(
+                (chat) => chat.id === currentChatId
+              );
+
+              // Check if current messages match a chat in history (by message IDs)
+              // Only use this to detect if we've loaded a chat from history when the ID doesn't match
+              // This happens when loadChatFromHistory generates a new ID
+              const currentMessageIds = messages.map(m => m.id).join(',');
+              const matchingHistoryChat = !currentChatInHistory && currentMessageIds.length > 0
+                ? normalizedChatHistory.find((chat) => {
+                    const chatMessageIds = chat.messages.map(m => m.id).join(',');
+                    return chatMessageIds === currentMessageIds && chatMessageIds.length > 0;
+                  })
+                : null;
+
+              // Create current chat session if it has messages
+              const currentChatSession: ChatSession | null = messages.length > 0 ? (() => {
+                const firstUserMessage = messages.find((m) => m.sender === "user");
+                const currentChatTitle = firstUserMessage
+                  ? firstUserMessage.content.length > 50
+                    ? firstUserMessage.content.substring(0, 50) + "..."
+                    : firstUserMessage.content
+                  : "New Chat";
+                
+                return {
+                  id: currentChatId || "current",
+                  title: currentChatTitle,
+                  messages: messages,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                };
+              })() : null;
+
+              // Determine the effective current chat ID
+              // If current chat is in history by ID, use that ID
+              // If current messages match a historical chat (but ID doesn't), use the historical chat's ID
+              // Otherwise, use the current chat ID
+              const effectiveCurrentChatId = currentChatInHistory 
+                ? currentChatId 
+                : (matchingHistoryChat ? matchingHistoryChat.id : currentChatId);
+
+              // Combine: current chat (if not in history) + all history chats
+              const allChats: ChatSession[] = [];
+              
+              // Show current chat separately if:
+              // 1. It has messages
+              // 2. It's not already in history by ID (if it's in history by ID, it will be shown from history)
+              // 3. It doesn't match a historical chat by message content (if it matches, show the historical one)
+              // This ensures new chats are always shown, even if they haven't been saved yet
+              if (currentChatSession && !currentChatInHistory && !matchingHistoryChat && messages.length > 0) {
+                allChats.push(currentChatSession);
+              }
+              
+              // Add all history chats
+              // If current chat is in history or matches a historical chat, it will be included here and marked as current below
+              allChats.push(...normalizedChatHistory);
+
+              if (allChats.length === 0) {
+                return (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No previous chats</p>
                   </div>
-                </button>
-              ))
-            )}
+                );
+              }
+
+              // Remove duplicates by ID (in case current chat is both in history and shown separately)
+              const uniqueChats = allChats.reduce((acc, chat) => {
+                if (!acc.find(c => c.id === chat.id)) {
+                  acc.push(chat);
+                }
+                return acc;
+              }, [] as ChatSession[]);
+
+              return uniqueChats.map((chat) => {
+                // Check if this is the current chat
+                // Priority: 1) By ID match, 2) By matching history chat ID, 3) By currentChatId if no match
+                const isCurrentChat = effectiveCurrentChatId 
+                  ? chat.id === effectiveCurrentChatId 
+                  : (currentChatId && chat.id === currentChatId);
+                
+                return (
+                  <button
+                    key={chat.id}
+                    onClick={() => {
+                      if (isCurrentChat) {
+                        // If clicking current chat, just close history view
+                        setShowChatHistory(false);
+                      } else {
+                        // Load the selected chat
+                        handleLoadChat(chat);
+                      }
+                    }}
+                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                      isCurrentChat
+                        ? "border-2 border-blue-500 bg-blue-50 hover:bg-blue-100"
+                        : "border border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex flex-col space-y-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-sm text-gray-900 line-clamp-2">
+                          {chat.title}
+                        </p>
+                        {isCurrentChat && (
+                          <span className="text-xs text-blue-600 font-medium px-2 py-0.5 rounded bg-blue-100">
+                            Current
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-gray-500">
+                          {chat.messages.length} message
+                          {chat.messages.length !== 1 ? "s" : ""}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {isCurrentChat && !currentChatInHistory 
+                            ? "Just now" 
+                            : formatRelativeTime(chat.updatedAt)}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              });
+            })()}
           </div>
         </div>
       </div>
@@ -2760,7 +2919,7 @@ Checking room availability
               className="h-8 w-8 p-0 hover:bg-gray-100"
               title="Start new chat"
             >
-              <FontAwesomeIcon icon={faRotateRight} className="h-4 w-4" />
+              <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
             </Button>
           )}
           {shouldShowHistoryButton && (

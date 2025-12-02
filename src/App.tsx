@@ -1028,24 +1028,41 @@ export default function App() {
       // Ensure prev is always an array
       const prevArray = Array.isArray(prev) ? prev : [];
 
-      // Find existing chat to preserve createdAt
-      const existingChat = prevArray.find((c) => c.id === chatIdToSave);
+      // Check if this chat ID already exists in history
+      const existingIndex = prevArray.findIndex((c) => c.id === chatIdToSave);
 
-      const chatSession: ChatSession = {
-        id: chatIdToSave,
-        title: generateChatTitle(aiAssistantMessages),
-        messages: [...aiAssistantMessages],
-        createdAt: existingChat?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const existingIndex = prevArray.findIndex((c) => c.id === chatSession.id);
       if (existingIndex >= 0) {
-        // Update existing chat
-        const updated = [...prevArray];
-        updated[existingIndex] = chatSession;
-        return updated;
+        // This chat is already in history - don't update it, preserve it as-is
+        // This prevents overwriting historical chats when loading and then saving
+        // Just return the existing history unchanged
+        return prevArray;
       } else {
+        // Check if a chat with the same content already exists (to prevent duplicates)
+        // Compare by message IDs to detect if it's the same conversation
+        const messageIds = aiAssistantMessages
+          .map((m: Message) => m.id)
+          .join(",");
+        const duplicateChat = prevArray.find((chat) => {
+          const chatMessageIds = chat.messages
+            .map((m: Message) => m.id)
+            .join(",");
+          return chatMessageIds === messageIds;
+        });
+
+        if (duplicateChat) {
+          // This chat already exists with the same content - don't add a duplicate
+          // Just return the existing history unchanged
+          return prevArray;
+        }
+
+        // This is a new chat, add it to history
+        const chatSession: ChatSession = {
+          id: chatIdToSave,
+          title: generateChatTitle(aiAssistantMessages),
+          messages: [...aiAssistantMessages],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
         // Add new chat to the beginning
         return [chatSession, ...prevArray];
       }
@@ -1053,8 +1070,11 @@ export default function App() {
   };
 
   const loadChatFromHistory = (chatSession: ChatSession) => {
+    // Generate a new ID for the current chat session to prevent overwriting the historical chat
+    // The historical chat should remain unchanged in history
+    const newChatId = Date.now().toString();
+    setCurrentChatId(newChatId);
     setAiAssistantMessages(chatSession.messages);
-    setCurrentChatId(chatSession.id);
 
     // Clear current preview first
     setAiMeetingPreview(null);
@@ -1067,16 +1087,31 @@ export default function App() {
       .find((msg) => msg.showRoomSuggestions && msg.meetingRequirements);
 
     if (lastMessageWithSuggestions?.meetingRequirements) {
-      // Restore the preview for this chat
-      setPreviewChatId(chatSession.id);
+      // Restore the preview for this chat using the new chat ID
+      setPreviewChatId(newChatId);
       // The preview will be set by the RoomBookingSuggestions component when it renders
     }
   };
 
   const startNewChat = () => {
     // Save current chat to history before clearing
+    // But only if it's not already in history (to prevent duplicates)
     if (aiAssistantMessages.length > 0 && currentChatId) {
-      saveCurrentChatToHistory();
+      // Check if this chat is already in history by message content
+      const messageIds = aiAssistantMessages
+        .map((m: Message) => m.id)
+        .join(",");
+      const isAlreadyInHistory = normalizedChatHistory.some((chat) => {
+        const chatMessageIds = chat.messages
+          .map((m: Message) => m.id)
+          .join(",");
+        return chatMessageIds === messageIds && chatMessageIds.length > 0;
+      });
+
+      // Only save if it's not already in history
+      if (!isAlreadyInHistory) {
+        saveCurrentChatToHistory();
+      }
     }
     // Clear messages and generate a new chat ID for the new chat session
     setAiAssistantMessages([]);
@@ -1234,6 +1269,7 @@ export default function App() {
               aiAssistantMessages={aiAssistantMessages}
               onAiAssistantMessagesUpdate={handleAiAssistantMessagesUpdate}
               chatHistory={normalizedChatHistory}
+              currentChatId={currentChatId}
               onLoadChatFromHistory={loadChatFromHistory}
               onStartNewChat={startNewChat}
               selectedMeetingDetails={selectedMeetingDetails}
