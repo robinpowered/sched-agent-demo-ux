@@ -1451,8 +1451,9 @@ export function PageLayout({
 
     return (
       <div
-        className="fixed left-18 max-[600px]:left-9 text-white rounded-lg shadow-lg border border-gray-700 z-50 flex flex-col"
+        className="fixed text-white rounded-lg shadow-lg border border-gray-700 z-50 flex flex-col"
         style={{
+          left: isMobile ? "36px" : "72px", // Align to right edge of collapsed nav (w-18 = 72px, w-9 = 36px on mobile)
           top: `${workplaceIconTop}px`,
           backgroundColor: "#131A23",
           maxHeight: `${finalMaxHeight}px`,
@@ -1520,8 +1521,9 @@ export function PageLayout({
 
     return (
       <div
-        className="fixed left-18 max-[600px]:left-9 text-white rounded-lg shadow-lg border border-gray-700 z-50 flex flex-col"
+        className="fixed text-white rounded-lg shadow-lg border border-gray-700 z-50 flex flex-col"
         style={{
+          left: isMobile ? "36px" : "72px", // Align to right edge of collapsed nav (w-18 = 72px, w-9 = 36px on mobile)
           top: `${settingsIconTop}px`,
           backgroundColor: "#131A23",
           maxHeight: `${finalMaxHeight}px`,
