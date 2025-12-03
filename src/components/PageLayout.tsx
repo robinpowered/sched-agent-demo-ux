@@ -29,6 +29,7 @@ import {
 } from "./ui/tooltip";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { CustomTooltipContent } from "./common/CustomTooltip";
+import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
@@ -75,6 +76,7 @@ import {
   faEye,
   faCompass,
   faUtensils,
+  faHouse,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import shared types
@@ -355,6 +357,8 @@ export function PageLayout({
     toggleWorkplaceExpanded,
     isNavCollapsed,
     toggleNavCollapsed,
+    homepage,
+    setHomepage,
   } = useUiStore();
 
   // Create local handlers from store actions
@@ -3464,12 +3468,43 @@ export function PageLayout({
           <div className="px-6 max-[600px]:px-3 py-4 max-[600px]:py-2 pt-[10px] pr-[24px] pb-[10px] pl-[24px] max-[600px]:pt-2 max-[600px]:pr-3 max-[600px]:pb-2 max-[600px]:pl-3">
             {/* First Row: Title + AI Button */}
             <div className="flex items-center justify-between mb-3">
-              <h1
-                className="text-gray-900 max-[599px]:text-[22px]"
-                style={{ fontSize: "30px", fontWeight: 400 }}
-              >
-                {pageTitle}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1
+                  className="text-gray-900 max-[599px]:text-[22px]"
+                  style={{ fontSize: "30px", fontWeight: 400 }}
+                >
+                  {pageTitle}
+                </h1>
+                {/* Homepage Icon */}
+                {homepage === currentView ? (
+                  <FontAwesomeIcon
+                    icon={faHouse}
+                    className="h-5 w-5 text-[#17559C]"
+                  />
+                ) : (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            setHomepage(currentView);
+                            toast.success(`${pageTitle} has been set as your home page`, {
+                              duration: 3000,
+                            });
+                          }}
+                          className="h-5 w-5 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                          aria-label="Set this page as home"
+                        >
+                          <FontAwesomeIcon icon={faHouse} className="h-5 w-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Set as home page</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
 
               {/* Right side controls */}
               <div className="flex items-center space-x-4">

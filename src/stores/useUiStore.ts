@@ -12,6 +12,7 @@ interface UiState {
     selectedFloor: string;
     myScheduleTab: string;
     peopleTab: string;
+    homepage: View;
 
     // Actions
     setCurrentView: (view: View) => void;
@@ -26,6 +27,7 @@ interface UiState {
     setSelectedFloor: (floor: string) => void;
     setMyScheduleTab: (tab: string) => void;
     setPeopleTab: (tab: string) => void;
+    setHomepage: (view: View) => void;
 
     // Sidebar Helpers
     openSidebar: (type: SidebarType) => void;
@@ -43,6 +45,7 @@ export const useUiStore = create<UiState>((set, get) => ({
     selectedFloor: '1',
     myScheduleTab: 'workweek',
     peopleTab: 'organization',
+    homepage: 'dashboard',
 
     setCurrentView: (view) => set({ currentView: view }),
     setSidebarType: (type) => set({ sidebarType: type }),
@@ -58,6 +61,7 @@ export const useUiStore = create<UiState>((set, get) => ({
     setSelectedFloor: (floor) => set({ selectedFloor: floor }),
     setMyScheduleTab: (tab) => set({ myScheduleTab: tab }),
     setPeopleTab: (tab) => set({ peopleTab: tab }),
+    setHomepage: (view) => set({ homepage: view }),
 
     openSidebar: (type) => {
         const { sidebarType, sidebarStack } = get();
