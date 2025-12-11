@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+// @ts-ignore - Optional dependency, types may not be available
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react@8.6.0";

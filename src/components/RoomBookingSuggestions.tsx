@@ -158,6 +158,7 @@ export function RoomBookingSuggestions({
             roomName: room.name,
             roomCapacity: room.capacity,
             roomFeatures: room.features,
+            roomFloor: room.floor,
             floor: room.floor,
             score
           };
@@ -240,13 +241,7 @@ export function RoomBookingSuggestions({
     return `${displayHour}${displayMinutes} ${period}`;
   };
 
-  const getFeatureIcon = (feature: string) => {
-    const featureLower = feature.toLowerCase();
-    if (featureLower.includes('video') || featureLower.includes('conf')) return <Monitor className="w-3 h-3" />;
-    if (featureLower.includes('audio') || featureLower.includes('sound')) return <Volume2 className="w-3 h-3" />;
-    if (featureLower.includes('wifi') || featureLower.includes('internet')) return <Wifi className="w-3 h-3" />;
-    return null;
-  };
+  // Removed unused getFeatureIcon function
 
   if (suggestions.length === 0) {
     return (

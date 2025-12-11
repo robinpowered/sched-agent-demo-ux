@@ -3,6 +3,7 @@
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
+// @ts-ignore - Optional dependency, types may not be available
 import {
   Controller,
   FormProvider,

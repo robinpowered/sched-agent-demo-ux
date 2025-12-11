@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { GripVerticalIcon } from "lucide-react";
+// @ts-expect-error - Optional dependency, types may not be available
 import * as ResizablePrimitive from "react-resizable-panels@2.1.7";
 
 import { cn } from "./utils";

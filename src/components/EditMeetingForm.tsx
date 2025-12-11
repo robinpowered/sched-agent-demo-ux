@@ -266,7 +266,7 @@ export const EditMeetingForm = React.forwardRef<HTMLFormElement, EditMeetingForm
 
   // Validation helpers
   const isValidTimeRange = !isAllDay && endTime > startTime;
-  const isFormValid = selectedRooms.length > 0 && title.trim() && (isAllDay || isValidTimeRange);
+  const isFormValid = Boolean(selectedRooms.length > 0 && title.trim() && (isAllDay || isValidTimeRange));
 
   // Notify parent of form validity changes
   useEffect(() => {

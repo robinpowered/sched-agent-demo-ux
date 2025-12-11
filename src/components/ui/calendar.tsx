@@ -61,10 +61,12 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
+        // @ts-expect-error - IconLeft/IconRight are valid but not in type definition
+        IconLeft: ({ className, ...props }: { className?: string; [key: string]: any }) => (
           <FontAwesomeIcon icon={faChevronLeft} className={cn("size-4", className)} {...props} />
         ),
-        IconRight: ({ className, ...props }) => (
+        // @ts-expect-error - IconLeft/IconRight are valid but not in type definition
+        IconRight: ({ className, ...props }: { className?: string; [key: string]: any }) => (
           <FontAwesomeIcon icon={faChevronRight} className={cn("size-4", className)} {...props} />
         ),
       }}
