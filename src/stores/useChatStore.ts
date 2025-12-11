@@ -10,7 +10,7 @@ interface ChatState {
   // Actions
   setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
   addMessage: (message: Message) => void;
-  setChatHistory: (history: ChatSession[]) => void;
+  setChatHistory: (history: ChatSession[] | ((prev: ChatSession[]) => ChatSession[])) => void;
   startNewChat: () => void;
   loadChat: (session: ChatSession) => void;
   setThinking: (thinking: boolean) => void;
