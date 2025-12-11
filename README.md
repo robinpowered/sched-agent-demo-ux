@@ -2,6 +2,8 @@
 
 A comprehensive workplace management application for meeting room booking, scheduling, workspace coordination, and AI-assisted resource management.
 
+Preview deployed at: https://robinpowered.github.io/sched-agent-demo-ux/
+
 ## Project Overview
 
 This is a full-featured workplace management platform inspired by Robin, built with React and Tailwind CSS. The application provides:

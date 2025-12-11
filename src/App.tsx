@@ -57,7 +57,7 @@ export default function App() {
 
   // Sync URL with currentView state
   useEffect(() => {
-    const path = location.pathname.substring(1) || "dashboard";
+    const path = location.pathname.substring(1) || "meeting-spaces";
     if (path !== currentView) {
       setCurrentView(path as View);
     }
@@ -1194,7 +1194,7 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/meeting-spaces" replace />} />
         <Route
           path="/meeting-spaces"
           element={
