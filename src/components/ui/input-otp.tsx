@@ -44,8 +44,8 @@ function InputOTPSlot({
 }: React.ComponentProps<"div"> & {
   index: number;
 }) {
-  const inputOTPContext = React.useContext(OTPInputContext);
-  // @ts-expect-error - slots property exists at runtime but not in type definition
+  const inputOTPContext = React.useContext(OTPInputContext) as any;
+  // slots property exists at runtime but not in type definition
   const { char, hasFakeCaret, isActive } =
     inputOTPContext?.slots?.[index] ?? {};
 
