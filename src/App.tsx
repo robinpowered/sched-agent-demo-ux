@@ -182,7 +182,9 @@ export default function App() {
   );
 
   // Meeting syncing state
-  const [syncingMeetings, setSyncingMeetings] = useState<Set<string>>(new Set());
+  const [syncingMeetings, setSyncingMeetings] = useState<Set<string>>(
+    new Set()
+  );
 
   // Timestamp state for forcing re-renders when time changes (for filter updates)
 
@@ -1160,7 +1162,9 @@ export default function App() {
 
     // Use functional update to access the latest serviceTickets state
     setServiceTickets((currentTickets: ServiceTicket[]) => {
-      const ticket = currentTickets.find((t: ServiceTicket) => t.id === ticketId);
+      const ticket = currentTickets.find(
+        (t: ServiceTicket) => t.id === ticketId
+      );
       if (ticket) {
         setSelectedServiceTicket(ticket);
         setSidebarState("service-ticket");
@@ -1197,10 +1201,16 @@ export default function App() {
               onDeleteMeeting={handleDeleteMeeting}
               onEditMeeting={handleEditMeeting}
               onCreateMeeting={handleCreateMeeting}
-              meetingCreationContext={meetingCreationContext && meetingCreationContext.roomId && meetingCreationContext.startTime ? {
-                roomId: meetingCreationContext.roomId,
-                startTime: meetingCreationContext.startTime,
-              } : null}
+              meetingCreationContext={
+                meetingCreationContext &&
+                meetingCreationContext.roomId &&
+                meetingCreationContext.startTime
+                  ? {
+                      roomId: meetingCreationContext.roomId,
+                      startTime: meetingCreationContext.startTime,
+                    }
+                  : null
+              }
               onSaveNewMeeting={handleSaveNewMeeting}
               onCancelMeetingCreation={handleCancelMeetingCreation}
               spotlightMyEvents={spotlightMyEvents}
