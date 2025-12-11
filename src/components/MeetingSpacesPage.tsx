@@ -65,6 +65,7 @@ interface MeetingSpacesPageProps {
   aiAssistantMessages?: Message[];
   onAiAssistantMessagesUpdate?: (messages: Message[]) => void;
   chatHistory?: ChatSession[];
+  currentChatId?: string | null;
   onLoadChatFromHistory?: (chatSession: ChatSession) => void;
   onStartNewChat?: () => void;
   selectedMeetingDetails?: {
@@ -1219,6 +1220,9 @@ export function MeetingSpacesPage({
     reasons: string[];
     isRestricted?: boolean;
     isOffline?: boolean;
+    isRequestOnly?: boolean;
+    hasInsufficientCapacity?: boolean;
+    hasExcessCapacity?: boolean;
   } | null>(null);
 
   // Mouse position for tooltip during drag
@@ -3088,6 +3092,7 @@ export function MeetingSpacesPage({
                                           setDragHoverRoom({
                                             roomId: room.id,
                                             roomCapacity: room.capacity,
+                                            reasons: [],
                                             hasExcessCapacity:
                                               hasExcessCapacity,
                                             hasInsufficientCapacity:
@@ -3492,6 +3497,7 @@ export function MeetingSpacesPage({
                                           setDragHoverRoom({
                                             roomId: room.id,
                                             roomCapacity: room.capacity,
+                                            reasons: [],
                                             hasExcessCapacity:
                                               hasExcessCapacity,
                                             hasInsufficientCapacity:
@@ -3542,6 +3548,7 @@ export function MeetingSpacesPage({
                                           setDragHoverRoom({
                                             roomId: room.id,
                                             roomCapacity: room.capacity,
+                                            reasons: [],
                                             hasExcessCapacity:
                                               hasExcessCapacity,
                                             hasInsufficientCapacity:
@@ -3565,6 +3572,7 @@ export function MeetingSpacesPage({
                                           setDragHoverRoom({
                                             roomId: room.id,
                                             roomCapacity: room.capacity,
+                                            reasons: [],
                                             hasExcessCapacity:
                                               hasExcessCapacity,
                                             hasInsufficientCapacity:

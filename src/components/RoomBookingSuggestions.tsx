@@ -14,6 +14,7 @@ import {
   faClock,
   faMapMarkerAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import { Monitor, Volume2, Wifi } from "lucide-react";
 import svgPaths from "../imports/svg-qkb7ffmkcm";
 import { ImageWithFallback } from "./common/ImageWithFallback";
 
@@ -198,6 +199,7 @@ export function RoomBookingSuggestions({
             roomName: room.name,
             roomCapacity: room.capacity,
             roomFeatures: room.features,
+            roomFloor: room.floor,
             floor: room.floor,
             score,
           };

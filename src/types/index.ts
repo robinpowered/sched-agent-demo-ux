@@ -159,6 +159,7 @@ export interface Message {
   meetingRequirements?: MeetingRequirements;
   isTyping?: boolean; // Shows bouncing dots animation before text appears
   typedContent?: string; // Partial content during typewriter effect
+  isPaused?: boolean; // Whether the message is paused
 }
 
 export interface MeetingRequirements {

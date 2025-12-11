@@ -63,22 +63,36 @@ function Calendar({
         day_hidden: "invisible",
         ...classNames,
       }}
-      components={{
-        IconLeft: ({ className, ...props }) => (
-          <FontAwesomeIcon
-            icon={faChevronLeft}
-            className={cn("size-4", className)}
-            {...props}
-          />
-        ),
-        IconRight: ({ className, ...props }) => (
-          <FontAwesomeIcon
-            icon={faChevronRight}
-            className={cn("size-4", className)}
-            {...props}
-          />
-        ),
-      }}
+      components={
+        {
+          IconLeft: ({
+            className,
+            ...props
+          }: {
+            className?: string;
+            [key: string]: any;
+          }) => (
+            <FontAwesomeIcon
+              icon={faChevronLeft}
+              className={cn("size-4", className)}
+              {...props}
+            />
+          ),
+          IconRight: ({
+            className,
+            ...props
+          }: {
+            className?: string;
+            [key: string]: any;
+          }) => (
+            <FontAwesomeIcon
+              icon={faChevronRight}
+              className={cn("size-4", className)}
+              {...props}
+            />
+          ),
+        } as any
+      }
       {...props}
     />
   );

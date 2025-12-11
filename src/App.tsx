@@ -160,23 +160,8 @@ export default function App() {
     useState<{
       previousSidebar: SidebarType;
       previousMeetingDetails?: {
-        meeting: {
-          id: string;
-          title: string;
-          organizer: string;
-          startTime: number;
-          duration: number;
-          attendees: number;
-        };
-        room: {
-          id: string;
-          name: string;
-          capacity: number;
-          floor: number;
-          status: string;
-          features: string[];
-          meetings: Meeting[];
-        };
+        meeting: Meeting;
+        room: Room;
       };
     } | null>(null);
 
@@ -455,11 +440,11 @@ export default function App() {
 
   // Function to toggle room offline status
   const handleToggleRoomOffline = (roomId: string, isOffline: boolean) => {
-    const newRooms = allRooms.map((room) => {
+    const newRooms: Room[] = allRooms.map((room) => {
       if (room.id === roomId) {
         return {
           ...room,
-          status: isOffline ? "offline" : "available",
+          status: (isOffline ? "offline" : "available") as Room["status"],
         };
       }
       return room;
