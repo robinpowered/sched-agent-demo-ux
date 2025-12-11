@@ -135,23 +135,8 @@ export default function App() {
 
   // Meeting details state - for meeting details sidebar
   const [selectedMeetingDetails, setSelectedMeetingDetails] = useState<{
-    meeting: {
-      id: string;
-      title: string;
-      organizer: string;
-      startTime: number;
-      duration: number;
-      attendees: number;
-    };
-    room: {
-      id: string;
-      name: string;
-      capacity: number;
-      floor: number;
-      status: string;
-      features: string[];
-      meetings: Meeting[]; // Added to match Room interface
-    };
+    meeting: Meeting;
+    room: Room;
   } | null>(null);
 
   // Meeting creation state
@@ -174,20 +159,37 @@ export default function App() {
   const [roomDetailsNavigationContext, setRoomDetailsNavigationContext] =
     useState<{
       previousSidebar: SidebarType;
+      previousMeetingDetails?: {
+        meeting: {
+          id: string;
+          title: string;
+          organizer: string;
+          startTime: number;
+          duration: number;
+          attendees: number;
+        };
+        room: {
+          id: string;
+          name: string;
+          capacity: number;
+          floor: number;
+          status: string;
+          features: string[];
+          meetings: Meeting[];
+        };
+      };
     } | null>(null);
 
   // Navigation warning state
   const [showNavigationWarning, setShowNavigationWarning] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<View | null>(null);
-  const [hasPendingMove, setHasPendingMove] = useState(false);
+  const [, setHasPendingMove] = useState(false);
 
   // AI Meeting Preview State
   const [aiMeetingPreview, setAiMeetingPreview] = useState<{
-    summary: string;
-    date: string;
-    time: string;
-    duration: string;
-    attendees: string[];
+    roomId: string;
+    startTime: number;
+    duration: number;
     title: string;
   } | null>(null);
 
@@ -199,7 +201,9 @@ export default function App() {
   );
 
   // Meeting syncing state
-  const [syncingMeetings, setSyncingMeetings] = useState<string[]>([]);
+  const [syncingMeetings, setSyncingMeetings] = useState<Set<string>>(
+    new Set()
+  );
 
   // Timestamp state for forcing re-renders when time changes (for filter updates)
 
@@ -415,7 +419,7 @@ export default function App() {
       setRoomDetailsNavigationContext(null);
     }
 
-    setSelectedRoomDetails(room);
+    setSelectedRoomDetails({ room, date: new Date() });
     setSidebarState("room-details");
   };
 
@@ -463,12 +467,15 @@ export default function App() {
     setRooms(newRooms);
 
     // Update selected room details if this room is currently selected
-    if (selectedRoomDetails?.id === roomId) {
+    if (selectedRoomDetails?.room.id === roomId) {
       setSelectedRoomDetails((prev) =>
         prev
           ? {
               ...prev,
-              status: isOffline ? "offline" : "available",
+              room: {
+                ...prev.room,
+                status: isOffline ? "offline" : "available",
+              },
             }
           : null
       );
@@ -1220,7 +1227,15 @@ export default function App() {
               onDeleteMeeting={handleDeleteMeeting}
               onEditMeeting={handleEditMeeting}
               onCreateMeeting={handleCreateMeeting}
-              meetingCreationContext={meetingCreationContext}
+              meetingCreationContext={
+                meetingCreationContext?.roomId &&
+                meetingCreationContext?.startTime
+                  ? {
+                      roomId: meetingCreationContext.roomId,
+                      startTime: meetingCreationContext.startTime,
+                    }
+                  : null
+              }
               onSaveNewMeeting={handleSaveNewMeeting}
               onCancelMeetingCreation={handleCancelMeetingCreation}
               spotlightMyEvents={spotlightMyEvents}
@@ -1230,7 +1245,7 @@ export default function App() {
               selectedTimezones={selectedTimezones}
               onSelectedTimezonesChange={setSelectedTimezones}
               onPendingMoveChange={handlePendingMoveChange}
-              selectedRoomDetails={selectedRoomDetails}
+              selectedRoomDetails={selectedRoomDetails?.room || null}
               onOpenRoomDetails={handleOpenRoomDetails}
               onCloseRoomDetails={handleCloseRoomDetails}
               onClearRoomDetails={handleClearRoomDetails}

@@ -49,6 +49,10 @@ import { Message, ChatSession, Meeting, Room } from "../types";
 // Import shared utilities
 import { formatTimeFloat, formatDuration, getCurrentTimeFloat } from "../utils";
 
+// Import stores
+import { useUiStore } from "../stores/useUiStore";
+import { useNavigate } from "react-router-dom";
+
 interface MeetingSpacesPageProps {
   // Note: currentView, onNavigate, isWorkplaceExpanded, onWorkplaceExpandedChange,
   // isNavCollapsed, onNavCollapsedChange, sidebarState, and onSidebarStateChange
@@ -1136,6 +1140,13 @@ export function MeetingSpacesPage({
   // Note: PageLayout now handles currentView, onNavigate, isWorkplaceExpanded,
   // onWorkplaceExpandedChange, isNavCollapsed, onNavCollapsedChange, sidebarType,
   // and onSidebarStateChange via stores internally
+
+  // Get sidebar state and navigation from stores
+  const { sidebarType: sidebarState } = useUiStore();
+  const navigate = useNavigate();
+  const onNavigate = (view: string) => {
+    navigate("/" + view);
+  };
 
   // Ensure pinnedRoomIds is always an array
   const normalizedPinnedRoomIds = Array.isArray(pinnedRoomIds)
