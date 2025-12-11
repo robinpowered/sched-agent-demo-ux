@@ -73,6 +73,9 @@ export interface Meeting {
   aiCreated?: boolean; // Whether created from AI suggestion
   pendingApproval?: boolean; // For request-only rooms
   rooms?: string[]; // Room IDs this meeting is booked in
+  description?: string; // Optional meeting description
+  attendeeList?: string[]; // Optional list of attendee names/emails
+  date?: string; // Optional date string
 }
 
 export interface Room {
@@ -223,6 +226,7 @@ export interface RoomSuggestion {
 
 // Attendee Type
 export interface Attendee {
+  id?: string; // Optional ID for attendee
   name: string;
   email: string;
   avatar?: string;

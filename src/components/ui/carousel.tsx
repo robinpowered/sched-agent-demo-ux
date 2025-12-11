@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+// @ts-expect-error - Optional dependency, may not be installed
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react";

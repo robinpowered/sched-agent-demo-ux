@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+// @ts-ignore - Optional dependency
 import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "./utils";

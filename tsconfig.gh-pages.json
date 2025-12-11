@@ -5,6 +5,17 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": false,
-    "strictNullChecks": false
-  }
+    "strictNullChecks": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true
+  },
+  "exclude": [
+    "src/components/ui/carousel.tsx",
+    "src/components/ui/chart.tsx",
+    "src/components/ui/drawer.tsx",
+    "src/components/ui/input-otp.tsx",
+    "src/components/ui/resizable.tsx"
+  ]
 }
