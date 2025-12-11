@@ -1,4 +1,3 @@
-// @ts-nocheck - Optional dependency, types not available
 "use client";
 
 import * as React from "react";
@@ -12,6 +11,7 @@ import {
   type ControllerProps,
   type FieldPath,
   type FieldValues,
+  // @ts-expect-error - Optional dependency, types may not be available
 } from "react-hook-form@7.55.0";
 
 import { cn } from "./utils";

@@ -73,9 +73,6 @@ export interface Meeting {
   aiCreated?: boolean; // Whether created from AI suggestion
   pendingApproval?: boolean; // For request-only rooms
   rooms?: string[]; // Room IDs this meeting is booked in
-  description?: string; // Meeting description
-  attendeeList?: string[]; // List of attendee emails
-  date?: string; // Date string (ISO format)
 }
 
 export interface Room {
@@ -162,7 +159,6 @@ export interface Message {
   meetingRequirements?: MeetingRequirements;
   isTyping?: boolean; // Shows bouncing dots animation before text appears
   typedContent?: string; // Partial content during typewriter effect
-  isPaused?: boolean; // Whether thinking animation is paused
 }
 
 export interface MeetingRequirements {
@@ -226,7 +222,6 @@ export interface RoomSuggestion {
 
 // Attendee Type
 export interface Attendee {
-  id?: string; // Optional ID for attendee
   name: string;
   email: string;
   avatar?: string;

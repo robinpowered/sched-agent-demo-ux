@@ -7,9 +7,7 @@ interface ServiceState {
   selectedServiceTicket: ServiceTicket | null;
 
   // Actions
-  setServiceTickets: (
-    tickets: ServiceTicket[] | ((prev: ServiceTicket[]) => ServiceTicket[])
-  ) => void;
+  setServiceTickets: (tickets: ServiceTicket[]) => void;
   setSelectedServiceTicket: (ticket: ServiceTicket | null) => void;
 }
 
@@ -17,12 +15,6 @@ export const useServiceStore = create<ServiceState>((set) => ({
   serviceTickets: MOCK_SERVICE_TICKETS,
   selectedServiceTicket: null,
 
-  setServiceTickets: (tickets) => {
-    if (typeof tickets === "function") {
-      set((state) => ({ serviceTickets: tickets(state.serviceTickets) }));
-    } else {
-      set({ serviceTickets: tickets });
-    }
-  },
+  setServiceTickets: (tickets) => set({ serviceTickets: tickets }),
   setSelectedServiceTicket: (ticket) => set({ selectedServiceTicket: ticket }),
 }));

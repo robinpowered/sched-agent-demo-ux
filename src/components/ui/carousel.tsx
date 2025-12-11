@@ -1,4 +1,3 @@
-// @ts-nocheck - Optional dependency, types not available
 "use client";
 
 import * as React from "react";

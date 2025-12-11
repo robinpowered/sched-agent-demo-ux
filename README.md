@@ -2,10 +2,6 @@
 
 A comprehensive workplace management application for meeting room booking, scheduling, workspace coordination, and AI-assisted resource management.
 
-## Live Demo
-
-🌐 **Deployed Application**: [https://robinpowered.github.io/sched-agent-demo-ux/](https://robinpowered.github.io/sched-agent-demo-ux/)
-
 ## Project Overview
 
 This is a full-featured workplace management platform inspired by Robin, built with React and Tailwind CSS. The application provides:
@@ -118,6 +114,7 @@ Documentation Files:
 ### 4. Comprehensive Views
 
 **Navigation**:
+
 - Dashboard - Overview and metrics
 - My Schedule - Personal calendar
 - Meeting Spaces - Room booking interface
@@ -127,11 +124,13 @@ Documentation Files:
 - People - Team directory
 
 **Workplace** (expandable menu):
+
 - Daily Roster, Meeting Services, Space Requests
 - Issue Reports, Announcements, Visitors
 - Deliveries, Surveys, Devices, Calendars
 
 **Settings** (expandable menu):
+
 - Organization, Offices, Themes, Integrations
 - People, Groups, Roles, Calendars
 - Event Audit Logs, Hybrid Work Policies
@@ -152,11 +151,13 @@ The codebase underwent a major optimization to eliminate ~700 lines of duplicate
 ### Three Shared Files
 
 1. **`/types/index.ts`** - All TypeScript interfaces and types
+
    - Meeting, Room, Message, ChatSession
    - View, SidebarType, MeetingRoomFilters
    - Eliminates ~200 lines of type duplication
 
 2. **`/constants/index.ts`** - All hardcoded values
+
    - Page titles, amenities, room types
    - Time windows, durations, capacities
    - Eliminates ~100 lines of magic values
@@ -186,6 +187,7 @@ The codebase underwent a major optimization to eliminate ~700 lines of duplicate
 **Centralized Pattern**: App.tsx owns all state, components receive via props (prop drilling)
 
 **State Categories**:
+
 - Navigation (currentView, pendingNavigation)
 - AI Assistant (messages, chat history, current chat)
 - Sidebar (type, open/closed, context)
@@ -196,20 +198,23 @@ The codebase underwent a major optimization to eliminate ~700 lines of duplicate
 ### Component Communication
 
 **Callback Props**:
+
 ```typescript
 onSidebarStateChange={(type) => setSidebarState(type)}
 onNavigate={(view) => setCurrentView(view)}
 ```
 
 **State + Callback Pairs**:
+
 ```typescript
-spotlightMyEvents={spotlightMyEvents}
-onSpotlightMyEventsChange={setSpotlightMyEvents}
+spotlightMyEvents = { spotlightMyEvents };
+onSpotlightMyEventsChange = { setSpotlightMyEvents };
 ```
 
 ### Sidebar System
 
 **Six Sidebar Types**:
+
 - `none` - No sidebar
 - `ai-assistant` - AI chat interface
 - `meeting-details` - View/edit meeting
@@ -218,6 +223,7 @@ onSpotlightMyEventsChange={setSpotlightMyEvents}
 - `room-details` - Room information
 
 **Rules**:
+
 - Only ONE sidebar visible at a time
 - AI assistant can persist across navigation
 - Back button navigates sidebar stack
@@ -230,14 +236,17 @@ onSpotlightMyEventsChange={setSpotlightMyEvents}
 **Critical Rules**:
 
 1. ❌ **DO NOT use font size classes** (`text-2xl`, `text-lg`) unless overriding
+
    - Typography handled by semantic HTML (h1, h2, p, etc.)
    - Custom typography in `globals.css` applies automatically
 
 2. ❌ **DO NOT use font weight classes** (`font-bold`, `font-medium`) unless overriding
+
    - Weights defined via CSS variables
    - Applied to semantic elements automatically
 
 3. ❌ **DO NOT use line-height classes** (`leading-tight`) unless overriding
+
    - Line heights in typography system
 
 4. ✅ **DO use color, spacing, and layout classes normally**
@@ -270,13 +279,18 @@ onSpotlightMyEventsChange={setSpotlightMyEvents}
 **Primary Library: Font Awesome** (always use for new icons)
 
 ```typescript
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faCog, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCalendar,
+  faCog,
+  faMagicWandSparkles,
+} from "@fortawesome/free-solid-svg-icons";
 
-<FontAwesomeIcon icon={faCalendar} className="w-4 h-4" />
+<FontAwesomeIcon icon={faCalendar} className="w-4 h-4" />;
 ```
 
 **Common Icon Mappings**:
+
 - Navigation: `faCity`, `faChartLine`, `faTableCells`, `faCalendar`
 - Actions: `faPlus`, `faPencil`, `faTrash`, `faX`, `faCheck`
 - AI/Magic: `faMagicWandSparkles`, `faWandSparkles`, `faCompass`
@@ -315,23 +329,23 @@ The `/imports` directory contains actively used Figma assets:
 
 ```typescript
 // Components
-import Avatar from './imports/Avatar';
+import Avatar from "./imports/Avatar";
 
 // SVG paths
-import svgPaths from './imports/svg-lb4i9w2xwv';  // Toast icons
-import svgPaths from './imports/svg-2zju4fq6lg';  // AI assistant
+import svgPaths from "./imports/svg-lb4i9w2xwv"; // Toast icons
+import svgPaths from "./imports/svg-2zju4fq6lg"; // AI assistant
 ```
 
 ### Images
 
 ```typescript
-import { ImageWithFallback } from './components/figma/ImageWithFallback';
+import { ImageWithFallback } from "./components/figma/ImageWithFallback";
 
-<ImageWithFallback 
-  src="/path/to/image.jpg" 
-  alt="Description" 
-  className="w-full h-48 object-cover" 
-/>
+<ImageWithFallback
+  src="/path/to/image.jpg"
+  alt="Description"
+  className="w-full h-48 object-cover"
+/>;
 ```
 
 ## Testing Checklist
@@ -381,12 +395,14 @@ import { ImageWithFallback } from './components/figma/ImageWithFallback';
 ### Accessibility
 
 **Current**:
+
 - Semantic HTML structure
 - ARIA labels on some components
 - Keyboard navigation in dialogs
 - Focus states on interactive elements
 
 **Improvements Needed**:
+
 - Full keyboard navigation for calendar
 - Screen reader announcements for state changes
 - Focus management in sidebars (focus trap, return focus)
@@ -396,6 +412,7 @@ import { ImageWithFallback } from './components/figma/ImageWithFallback';
 ### Mobile Responsiveness
 
 Currently desktop-focused. Mobile considerations:
+
 - Responsive sidebar → bottom sheet on mobile
 - Calendar → simplified view or swipe navigation
 - Touch-friendly tap targets (min 44x44px)
@@ -432,7 +449,6 @@ Currently desktop-focused. Mobile considerations:
 
 This project was imported from a Figma Make project and includes Figma-imported components in the `/imports` directory.
 
-
 For comprehensive development guidelines, see **Guidelines.md**.
 
 ## Shared Code Guide
@@ -443,18 +459,18 @@ For comprehensive development guidelines, see **Guidelines.md**.
 
 ```typescript
 // Import types from shared file
-import { Meeting, Room, Message } from './types';
+import { Meeting, Room, Message } from "./types";
 
 // Import utilities from shared file
-import { formatTimeFloat, getRoomType } from './utils';
+import { formatTimeFloat, getRoomType } from "./utils";
 
 // Import constants from shared file
-import { ROOM_AMENITIES, TOAST_DURATION } from './constants';
+import { ROOM_AMENITIES, TOAST_DURATION } from "./constants";
 
 export function NewComponent() {
   // Use imported types, utilities, and constants
   const formattedTime = formatTimeFloat(9.5); // "9:30 AM"
-  
+
   return <div>{formattedTime}</div>;
 }
 ```

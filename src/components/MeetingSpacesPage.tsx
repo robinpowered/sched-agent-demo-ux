@@ -49,9 +49,6 @@ import { Message, ChatSession, Meeting, Room } from "../types";
 // Import shared utilities
 import { formatTimeFloat, formatDuration, getCurrentTimeFloat } from "../utils";
 
-// Import stores
-import { useUiStore } from "../stores/useUiStore";
-
 interface MeetingSpacesPageProps {
   // Note: currentView, onNavigate, isWorkplaceExpanded, onWorkplaceExpandedChange,
   // isNavCollapsed, onNavCollapsedChange, sidebarState, and onSidebarStateChange
@@ -1140,10 +1137,6 @@ export function MeetingSpacesPage({
   // onWorkplaceExpandedChange, isNavCollapsed, onNavCollapsedChange, sidebarType,
   // and onSidebarStateChange via stores internally
 
-  // Get sidebar state and navigation from store
-  const { sidebarType: sidebarState, setCurrentView } = useUiStore();
-  const onNavigate = (view: string) => setCurrentView(view as any);
-
   // Ensure pinnedRoomIds is always an array
   const normalizedPinnedRoomIds = Array.isArray(pinnedRoomIds)
     ? pinnedRoomIds
@@ -1215,9 +1208,6 @@ export function MeetingSpacesPage({
     reasons: string[];
     isRestricted?: boolean;
     isOffline?: boolean;
-    hasExcessCapacity?: boolean;
-    isRequestOnly?: boolean;
-    hasInsufficientCapacity?: boolean;
   } | null>(null);
 
   // Mouse position for tooltip during drag
@@ -3087,14 +3077,11 @@ export function MeetingSpacesPage({
                                           setDragHoverRoom({
                                             roomId: room.id,
                                             roomCapacity: room.capacity,
-                                            reasons: [],
                                             hasExcessCapacity:
-                                              hasExcessCapacity || undefined,
+                                              hasExcessCapacity,
                                             hasInsufficientCapacity:
-                                              roomHasInsufficientCapacity ||
-                                              undefined,
-                                            isRequestOnly:
-                                              isRequestOnlyRoom || undefined,
+                                              roomHasInsufficientCapacity,
+                                            isRequestOnly: isRequestOnlyRoom,
                                           });
                                         }
                                       }}
@@ -3494,17 +3481,13 @@ export function MeetingSpacesPage({
                                           setDragHoverRoom({
                                             roomId: room.id,
                                             roomCapacity: room.capacity,
-                                            reasons: [],
                                             hasExcessCapacity:
-                                              hasExcessCapacity || undefined,
+                                              hasExcessCapacity,
                                             hasInsufficientCapacity:
-                                              roomHasInsufficientCapacity ||
-                                              undefined,
-                                            isRequestOnly:
-                                              isRequestOnlyRoom || undefined,
-                                            isRestricted:
-                                              isRestricted || undefined,
-                                            isOffline: isOffline || undefined,
+                                              roomHasInsufficientCapacity,
+                                            isRequestOnly: isRequestOnlyRoom,
+                                            isRestricted: isRestricted,
+                                            isOffline: isOffline,
                                           });
                                         }
                                       }}
@@ -3548,17 +3531,13 @@ export function MeetingSpacesPage({
                                           setDragHoverRoom({
                                             roomId: room.id,
                                             roomCapacity: room.capacity,
-                                            reasons: [],
                                             hasExcessCapacity:
-                                              hasExcessCapacity || undefined,
+                                              hasExcessCapacity,
                                             hasInsufficientCapacity:
-                                              roomHasInsufficientCapacity ||
-                                              undefined,
-                                            isRequestOnly:
-                                              isRequestOnlyRoom || undefined,
-                                            isRestricted:
-                                              isRestricted || undefined,
-                                            isOffline: isOffline || undefined,
+                                              roomHasInsufficientCapacity,
+                                            isRequestOnly: isRequestOnlyRoom,
+                                            isRestricted: isRestricted,
+                                            isOffline: isOffline,
                                           });
                                         }
                                         return false;
@@ -3575,17 +3554,13 @@ export function MeetingSpacesPage({
                                           setDragHoverRoom({
                                             roomId: room.id,
                                             roomCapacity: room.capacity,
-                                            reasons: [],
                                             hasExcessCapacity:
-                                              hasExcessCapacity || undefined,
+                                              hasExcessCapacity,
                                             hasInsufficientCapacity:
-                                              roomHasInsufficientCapacity ||
-                                              undefined,
-                                            isRequestOnly:
-                                              isRequestOnlyRoom || undefined,
-                                            isRestricted:
-                                              isRestricted || undefined,
-                                            isOffline: isOffline || undefined,
+                                              roomHasInsufficientCapacity,
+                                            isRequestOnly: isRequestOnlyRoom,
+                                            isRestricted: isRestricted,
+                                            isOffline: isOffline,
                                           });
                                         }
                                         return false;

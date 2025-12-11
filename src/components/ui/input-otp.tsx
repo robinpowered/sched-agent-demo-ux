@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-// @ts-expect-error - Optional dependency, types may not be available
 import { OTPInput, OTPInputContext } from "input-otp@1.4.2";
 import { MinusIcon } from "lucide-react";
 
@@ -44,10 +43,8 @@ function InputOTPSlot({
 }: React.ComponentProps<"div"> & {
   index: number;
 }) {
-  const inputOTPContext = React.useContext(OTPInputContext) as any;
-  // slots property exists at runtime but not in type definition
-  const { char, hasFakeCaret, isActive } =
-    inputOTPContext?.slots?.[index] ?? {};
+  const inputOTPContext = React.useContext(OTPInputContext);
+  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {};
 
   return (
     <div

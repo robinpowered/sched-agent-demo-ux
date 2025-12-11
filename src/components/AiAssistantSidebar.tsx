@@ -381,7 +381,7 @@ export function AiAssistantSidebar({
     } else {
       // For new messages, only mark non-typing messages as complete
       cleanedMessages.forEach((message) => {
-        if (message.sender === "assistant" && !(message as Message).isTyping) {
+        if (message.sender === "assistant" && !message.isTyping) {
           // Only mark messages that are not currently typing as complete
           // This allows new typing messages to animate properly
           if (!initializedTypingMessages.current.has(message.id)) {

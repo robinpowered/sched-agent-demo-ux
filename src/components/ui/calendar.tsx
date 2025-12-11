@@ -64,28 +64,14 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        // @ts-ignore - IconLeft/IconRight are valid but not in type definition
-        IconLeft: ({
-          className,
-          ...props
-        }: {
-          className?: string;
-          [key: string]: any;
-        }) => (
+        IconLeft: ({ className, ...props }) => (
           <FontAwesomeIcon
             icon={faChevronLeft}
             className={cn("size-4", className)}
             {...props}
           />
         ),
-        // @ts-ignore - IconLeft/IconRight are valid but not in type definition
-        IconRight: ({
-          className,
-          ...props
-        }: {
-          className?: string;
-          [key: string]: any;
-        }) => (
+        IconRight: ({ className, ...props }) => (
           <FontAwesomeIcon
             icon={faChevronRight}
             className={cn("size-4", className)}
