@@ -1,8 +1,24 @@
 # Robin Workplace Management System
 
-A comprehensive workplace management application for meeting room booking, scheduling, workspace coordination, and AI-assisted resource management.
+## Local Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start the dev server:
+
+```bash
+npm run dev
+```
+
+3. Open the app in your browser (Vite will print the local URL, typically `http://localhost:5173`).
 
 Preview deployed at: https://robinpowered.github.io/sched-agent-demo-ux/
+
+A comprehensive workplace management application for meeting room booking, scheduling, workspace coordination, and AI-assisted resource management.
 
 ## Project Overview
 
